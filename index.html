@@ -1361,25 +1361,26 @@
     }
 
     function updateTrollTag() {
-      const lvl = state.trollLevel;
-      const tag = document.getElementById("troll-tag");
-      const desc = document.getElementById("troll-desc");
-      tag.classList.remove("level-0", "level-1", "level-2");
+  const lvl = state.trollLevel;
+  const tag = document.getElementById("troll-tag");
+  const desc = document.getElementById("troll-desc");
 
-      if (lvl === 0) {
-        tag.textContent = "🥦 Tryhard";
-        tag.classList.add("level-0");
-        desc.textContent = "Tu joues sérieux, tu veux vraiment gagner. Ton équipe ne te mérite pas.";
-      } else if (lvl === 1) {
-        tag.textContent = "🌶 Spicy";
-        tag.classList.add("level-1");
-        desc.textContent = "Tu comptes int mais en prétendant que c'est \"pour le fun\".";
-      } else {
-        tag.textContent = "🤡 Clown fiesta";
-        tag.classList.add("level-2");
-        desc.textContent = "Ton but n’est plus de gagner, juste de créer un ticket pour /r/leagueoflegends.";
-      }
-    }
+  tag.classList.remove("level-0", "level-1", "level-2");
+
+  if (lvl === 0) {
+    tag.textContent = "🥦 Tryhard";
+    tag.classList.add("level-0");
+    desc.textContent = "Tu joues sérieux, tu veux vraiment gagner. Ton équipe ne te mérite pas.";
+  } else if (lvl === 1) {
+    tag.textContent = "🌶 Spicy";
+    tag.classList.add("level-1");
+    desc.textContent = "Tu comptes int mais en prétendant que c'est \"pour le fun\".";
+  } else {
+    tag.textContent = "🤡 Clown fiesta";
+    tag.classList.add("level-2");
+    desc.textContent = "Ton but n’est plus de gagner, juste de créer un ticket pour /r/leagueoflegends.";
+  }
+}
 
     function getCheckedValue(name) {
       const els = document.querySelectorAll(`input[name="${name}"]`);
@@ -1862,12 +1863,18 @@
       document.getElementById("aram-my-pool-input").value = state.myPoolAram.join(", ");
       renderMyPoolChips("aram-my-pool-chips", state.myPoolAram.length ? state.myPoolAram : state.myPoolSolo);
 
-      const trollRange = document.getElementById("troll-level");
-      trollRange.addEventListener("input", () => {
-        state.trollLevel = parseInt(trollRange.value, 10) || 0;
-      });
-      state.trollLevel = parseInt(trollRange.value, 10) || 1;
-      updateTrollTag();
+       const trollRange = document.getElementById("troll-level");
+
+  // Valeur initiale : ce qu'il y a dans l'input (1 = Spicy)
+  const initial = parseInt(trollRange.value, 10);
+  state.trollLevel = isNaN(initial) ? 1 : initial;
+  updateTrollTag();
+
+  // Quand tu bouges le curseur
+  trollRange.addEventListener("input", () => {
+    const v = parseInt(trollRange.value, 10);
+    state.trollLevel = isNaN(v) ? 0 : v; // 0, 1 ou 2
+    updateTrollTag();
 
       document.getElementById("mode-solo").addEventListener("click", () => switchMode("solo"));
       document.getElementById("mode-team").addEventListener("click", () => switchMode("team"));
@@ -1929,4 +1936,5 @@
   </script>
 </body>
 </html>
+
 
