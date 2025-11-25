@@ -1,1888 +1,625 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8" />
-  <title>🎲 LoL Random Draft Machine – Clown fiesta contrôlée</title>
+  <title>🎲 LoL Random Draft Machine – Le Chaos Organisé</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="description" content="LoL Random Draft Machine – Générez des drafts League of Legends fun ou totalement troll en solo, équipe complète ou ARAM : champions random, runes chaotiques, sorts discutables, builds douteux et défis débiles. La RNG décide, toi tu assumes." />
-
-  <!-- Tu peux mettre favicon.ico ou favicon_sane.ico selon ce que tu as upload -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-
-  <meta name="theme-color" content="#7c3aed" />
-  <meta name="author" content="RNGesus & Co" />
+  <meta name="description"
+    content="Randomizer League of Legends complet : champions, runes, sorts, items et défis. Niveau de troll ajustable, mode sérieux, spicy ou clown fiesta. Construis ou détruis ta game." />
 
   <style>
     :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #020617;
-      color: #f9fafb;
+      --bg-dark: #0f172a;
+      --bg-light: #1e293b;
+      --bg-card: #111827;
+      --accent: #6366f1;
+      --accent-soft: #818cf8;
+      --text: #f8fafc;
+      --text-soft: #cbd5e1;
+      --danger: #ef4444;
+      --success: #22c55e;
+
+      font-family: "Segoe UI", system-ui, sans-serif;
     }
 
     body {
       margin: 0;
+      background: linear-gradient(150deg, #0f172a, #1e1b4b 60%, #312e81);
+      color: var(--text);
       min-height: 100vh;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      padding: 16px;
-      background:
-        radial-gradient(circle at top, rgba(59, 130, 246, 0.25), transparent 60%),
-        radial-gradient(circle at bottom, rgba(147, 51, 234, 0.2), #020617);
+      padding: 24px;
       box-sizing: border-box;
+      display: flex;
+      justify-content: center;
     }
 
     .app {
       width: 100%;
       max-width: 1080px;
-      background: rgba(15, 23, 42, 0.98);
-      border-radius: 24px;
-      padding: 18px 20px 22px;
-      box-shadow:
-        0 18px 45px rgba(0, 0, 0, 0.8),
-        0 0 0 1px rgba(148, 163, 184, 0.25);
-      box-sizing: border-box;
-      position: relative;
-      overflow: hidden;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 0 32px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
     }
 
-    .glow {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.5;
-      background:
-        radial-gradient(circle at 10% 0, rgba(59, 130, 246, 0.25), transparent 55%),
-        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.22), transparent 60%);
-      z-index: -1;
-    }
-
-    .app-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .title-block h1 {
+    h1 {
       margin: 0;
-      font-size: 1.7rem;
+      font-size: 36px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+      font-weight: 700;
     }
 
-    .logo {
-      font-size: 1.4rem;
+    #dynamic-icon {
+      font-size: 42px;
+      display: inline-block;
+      transition: transform 0.25s ease;
     }
 
     .subtitle {
-      margin-top: 4px;
-      font-size: 0.9rem;
-      color: #9ca3af;
-    }
-
-    .mode-switch {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 0.8rem;
-    }
-
-    .mode-label {
-      margin-right: 4px;
-      color: #9ca3af;
-      font-size: 0.75rem;
-      white-space: nowrap;
-    }
-
-    .mode-btn {
-      border: none;
-      background: transparent;
-      padding: 4px 9px;
-      border-radius: 999px;
-      color: #9ca3af;
-      cursor: pointer;
-      font-size: 0.8rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
-      white-space: nowrap;
-    }
-
-    .mode-btn span.icon {
-      font-size: 0.9rem;
-    }
-
-    .mode-btn.active {
-      background: radial-gradient(circle at top left, #1d4ed8, #7c3aed);
-      color: #e5e7eb;
-      transform: translateY(-0.5px);
-    }
-
-    .mode-btn:not(.active):hover {
-      background: rgba(30, 64, 175, 0.25);
-      color: #e5e7eb;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .troll-block {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
-    }
-
-    .troll-block label {
-      color: #9ca3af;
-      white-space: nowrap;
-    }
-
-    .troll-range {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    input[type="range"] {
-      accent-color: #f97316;
-    }
-
-    .troll-tag {
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .troll-tag.level-0 {
-      border-color: #22c55e;
-      color: #bbf7d0;
-    }
-
-    .troll-tag.level-1 {
-      border-color: #eab308;
-      color: #facc15;
-    }
-
-    .troll-tag.level-2 {
-      border-color: #f97316;
-      color: #fed7aa;
-    }
-
-    .challenge-toggle {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-
-    .challenge-toggle input {
-      accent-color: #22c55e;
-    }
-
-    .main-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr);
-      gap: 12px;
-    }
-
-    @media (max-width: 900px) {
-      .main-layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      margin-top: 6px;
+      font-size: 16px;
+      color: var(--text-soft);
+      min-height: 24px;
     }
 
     .card {
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
-      border-radius: 18px;
-      padding: 12px 12px 13px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      margin-bottom: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .card-title {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .card-title span.icon {
-      font-size: 1rem;
-    }
-
-    .card-subtitle {
-      font-size: 0.78rem;
-      color: #9ca3af;
-      margin-bottom: 6px;
-    }
-
-    .pill {
-      font-size: 0.7rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      padding: 2px 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #9ca3af;
-    }
-
-    .pill.muted {
-      border-style: dashed;
-      opacity: 0.8;
-    }
-
-    .lane-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .lane-btn {
-      border-radius: 999px;
-      padding: 4px 10px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, border 0.1s ease, background 0.1s ease;
-    }
-
-    .lane-btn.active {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      border-color: #93c5fd;
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
-      transform: translateY(-0.5px);
-    }
-
-    .lane-btn:hover:not(.active) {
-      border-color: #60a5fa;
-      transform: translateY(-0.5px);
-    }
-
-    .small-btn {
-      border-radius: 999px;
-      padding: 3px 8px;
-      border: none;
-      background: rgba(30, 64, 175, 0.9);
-      color: #e5e7eb;
-      font-size: 0.75rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .small-btn.secondary {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-    }
-
-    .small-btn:hover {
-      filter: brightness(1.1);
-    }
-
-    .radio-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 14px;
-      font-size: 0.8rem;
-      margin-bottom: 6px;
-    }
-
-    .radio-row label {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-
-    .radio-row input[type="radio"],
-    .radio-row input[type="checkbox"] {
-      accent-color: #2563eb;
-    }
-
-    .output {
-      margin-top: 4px;
-      font-size: 0.85rem;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px dashed rgba(148, 163, 184, 0.6);
-      min-height: 24px;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .output span.tag {
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      padding: 2px 8px;
-      font-size: 0.78rem;
-    }
-
-    .output .placeholder {
-      color: #6b7280;
-      font-size: 0.78rem;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      margin-top: 6px;
-    }
-
-    .row .hint {
-      font-size: 0.7rem;
-      color: #9ca3af;
-    }
-
-    textarea.pool-input {
-      width: 100%;
-      min-height: 44px;
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: rgba(15, 23, 42, 0.95);
-      color: #e5e7eb;
-      font-size: 0.78rem;
-      padding: 6px 8px;
-      resize: vertical;
-      box-sizing: border-box;
-      margin-top: 4px;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 4px;
-      max-height: 72px;
-      overflow-y: auto;
-    }
-
-    .chip {
-      border-radius: 999px;
-      padding: 2px 8px;
-      border: 1px solid rgba(52, 211, 153, 0.7);
-      font-size: 0.75rem;
-      color: #a7f3d0;
-    }
-
-    .btn-main {
-      border-radius: 999px;
-      padding: 8px 14px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      justify-content: center;
-      white-space: nowrap;
-    }
-
-    .btn-main.primary {
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      color: #e5e7eb;
-      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.5);
-    }
-
-    .btn-main.secondary {
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-    }
-
-    .btn-main:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
-
-    .solo-actions {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .solo-actions-left,
-    .solo-actions-right {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .challenge-box {
-      background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.98));
+      background: var(--bg-card);
+      padding: 24px;
       border-radius: 14px;
-      padding: 8px 8px;
-      border: 1px solid rgba(45, 212, 191, 0.5);
-      font-size: 0.8rem;
-      margin-top: 8px;
+      margin-top: 28px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
     }
 
-    .challenge-title {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #a5f3fc;
-      margin-bottom: 4px;
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 23px;
+    }
+
+    .button-row {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 4px;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    .challenge-text {
-      color: #e0f2fe;
+    .btn-option {
+      background: var(--bg-light);
+      padding: 14px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      color: var(--text);
+      transition: 0.2s;
+      font-size: 16px;
+      user-select: none;
     }
 
-    .view {
+    .btn-option:hover {
+      background: #334155;
+    }
+
+    .btn-option.selected {
+      border-color: var(--accent);
+      background: #312e81;
+    }
+
+    .generate-btn,
+    .random-all-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      color: white;
+      margin-top: 24px;
+      transition: 0.2s;
+    }
+
+    .generate-btn {
+      background: var(--accent);
+    }
+
+    .generate-btn:hover {
+      background: var(--accent-soft);
+    }
+
+    .random-all-btn {
+      background: #475569;
+    }
+
+    .random-all-btn:hover {
+      background: #64748b;
+    }
+
+    /* Build final */
+    .final-build {
+      margin-top: 32px;
+      padding: 32px;
+      background: rgba(17, 24, 39, 0.75);
+      border-radius: 18px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.55);
       display: none;
     }
 
-    .view.active {
-      display: block;
+    .final-section {
+      margin-bottom: 22px;
     }
 
-    .shake {
-      animation: shake 0.22s ease-in-out;
+    .final-section h3 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      color: var(--accent-soft);
     }
 
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-2px); }
-      50% { transform: translateX(2px); }
-      75% { transform: translateX(-1px); }
-      100% { transform: translateX(0); }
+    .reroll-row {
+      margin-top: 6px;
     }
 
-    .spin {
-      animation: spin 0.3s ease-out;
+    .reroll-btn {
+      padding: 8px 12px;
+      background: #334155;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 14px;
+      margin-right: 8px;
     }
 
-    @keyframes spin {
-      from { transform: rotateY(90deg); opacity: 0; }
-      to { transform: rotateY(0); opacity: 1; }
+    .reroll-btn:hover {
+      background: #475569;
     }
 
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    @keyframes wiggle {
+      0% {
+        transform: rotate(-6deg) scale(1.1);
+      }
 
-    .history-card {
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 16px;
-      padding: 10px 10px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 0.78rem;
-      max-height: 220px;
-      overflow-y: auto;
-    }
+      50% {
+        transform: rotate(6deg) scale(1.15);
+      }
 
-    .history-entry {
-      border-bottom: 1px dashed rgba(55, 65, 81, 0.8);
-      padding: 4px 0;
-    }
-
-    .history-entry:last-child {
-      border-bottom: none;
-    }
-
-    .history-title {
-      font-weight: 600;
-      color: #e5e7eb;
-    }
-
-    .history-meta {
-      font-size: 0.7rem;
-      color: #9ca3af;
-    }
-
-    .history-body {
-      margin-top: 2px;
-      white-space: pre-line;
-    }
-
-    .hint-small {
-      font-size: 0.72rem;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    .team-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-
-    .team-table th,
-    .team-table td {
-      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
-      padding: 4px 4px;
-      text-align: left;
-    }
-
-    .team-table th {
-      font-weight: 600;
-      color: #9ca3af;
-      position: sticky;
-      top: 0;
-      background: rgba(15, 23, 42, 0.98);
-      z-index: 1;
-    }
-
-    .badge-role {
-      border-radius: 999px;
-      padding: 1px 6px;
-      font-size: 0.72rem;
-      border: 1px solid rgba(96, 165, 250, 0.8);
-      color: #bfdbfe;
-    }
-
-    .view-note {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-bottom: 6px;
+      100% {
+        transform: rotate(-6deg) scale(1.1);
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="glow"></div>
-    <div class="app-header">
-      <div class="title-block">
-        <h1><span class="logo">🎲</span> LoL Random Draft Machine</h1>
-        <div class="subtitle">Solo, équipe complète ou ARAM : la RNG décide, toi tu cliques.</div>
-      </div>
-      <div class="mode-switch">
-        <span class="mode-label">Mode :</span>
-        <button class="mode-btn active" data-mode="solo" id="mode-solo">
-          <span class="icon">🧍</span><span>Solo</span>
-        </button>
-        <button class="mode-btn" data-mode="team" id="mode-team">
-          <span class="icon">👥</span><span>Équipe</span>
-        </button>
-        <button class="mode-btn" data-mode="aram" id="mode-aram">
-          <span class="icon">🎪</span><span>ARAM</span>
-        </button>
-      </div>
+<div class="app">
+  <div class="title-block">
+    <h1>
+      <span id="dynamic-icon">🌶️</span>
+      LoL Random Draft Machine
+    </h1>
+    <div class="subtitle" id="dynamic-subtitle">
+      Tu veux pimenter la game. Tu vas surtout pimenter les reports.
+    </div>
+  </div>
+  <!-- Carte : Niveau de troll + mode -->
+  <div class="card">
+    <h2>Niveau de Troll</h2>
+
+    <div style="margin-bottom: 12px;">
+      <input type="range" id="troll-level" min="0" max="2" value="1" style="width: 100%;">
     </div>
 
-    <div class="top-bar">
-      <div class="troll-block">
-        <label for="troll-level">Niveau de troll :</label>
-        <div class="troll-range">
-          <input type="range" id="troll-level" min="0" max="2" value="1" />
-          <span class="troll-tag level-1" id="troll-tag">Spicy</span>
-        </div>
-      </div>
-      <div class="challenge-toggle">
-        <input type="checkbox" id="enable-challenge" checked />
-        <label for="enable-challenge">Ajouter un défi aléatoire</label>
-      </div>
-    </div>
-
-    <div class="main-layout">
-      <div>
-        <!-- SOLO VIEW -->
-        <div class="view active" id="view-solo">
-          <!-- Lane -->
-          <div class="card" id="card-solo-lane">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">🛡️</span>
-                <span>Voie</span>
-              </div>
-              <span class="pill">Tirage ou choix manuel</span>
-            </div>
-            <div class="card-subtitle">
-              Choisis ta voie ou laisse la RNG t’en donner une.
-            </div>
-            <div class="lane-buttons" id="solo-lane-buttons">
-              <button class="lane-btn active" data-lane="top">Top</button>
-              <button class="lane-btn" data-lane="jungle">Jungle</button>
-              <button class="lane-btn" data-lane="mid">Mid</button>
-              <button class="lane-btn" data-lane="adc">ADC</button>
-              <button class="lane-btn" data-lane="support">Support</button>
-            </div>
-            <div class="row">
-              <div>
-                <label style="font-size:0.78rem;">
-                  <input type="checkbox" id="solo-lane-random-check" />
-                  Tirer la voie au hasard
-                </label>
-              </div>
-              <button class="small-btn" id="solo-lane-random-btn">
-                🎲 Random voie
-              </button>
-            </div>
-            <div class="output" id="solo-lane-output">
-              <span class="placeholder">Voie actuelle : Top</span>
-            </div>
-          </div>
-
-          <!-- Champion -->
-          <div class="card" id="card-solo-champion">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">⚔️</span>
-                <span>Champion</span>
-              </div>
-              <span class="pill">Pool par voie ou full random</span>
-            </div>
-            <div class="card-subtitle">
-              Choisis comment mélanger : champion complètement random, adapté à la voie, ou dans ton pool perso.
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="solo-champ-mode" value="full" checked />
-                Aléatoire complet
-              </label>
-              <label>
-                <input type="radio" name="solo-champ-mode" value="lanePool" />
-                Pool adapté à la voie
-              </label>
-              <label>
-                <input type="radio" name="solo-champ-mode" value="myPool" />
-                Mon pool perso
-              </label>
-              <label>
-                <input type="radio" name="solo-champ-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div id="solo-my-pool-section">
-              <textarea
-                id="solo-my-pool-input"
-                class="pool-input"
-                placeholder="Tape ici tes champions séparés par des virgules (ex : Ahri, Jinx, Lux)..."
-              ></textarea>
-              <div class="row">
-                <div class="hint">
-                  Ton pool est sauvegardé dans ton navigateur (localStorage) pour la prochaine fois.
-                </div>
-                <button class="small-btn secondary" id="solo-my-pool-save">💾 Sauvegarder mon pool</button>
-              </div>
-              <div class="chips" id="solo-my-pool-chips"></div>
-            </div>
-            <div class="row" style="margin-top:6px;">
-              <div style="flex:1; min-width:120px;">
-                <input
-                  type="text"
-                  id="solo-champ-manual"
-                  placeholder="Nom du champion (si choix manuel)"
-                  style="
-                    width: 100%;
-                    border-radius: 10px;
-                    border: 1px solid rgba(148,163,184,0.7);
-                    background: rgba(15,23,42,0.95);
-                    color:#e5e7eb;
-                    font-size:0.8rem;
-                    padding:5px 8px;
-                    box-sizing:border-box;
-                  "
-                />
-              </div>
-              <div style="display:flex; gap:6px;">
-                <button class="small-btn" id="solo-champ-random-btn">🎲 Random champion</button>
-                <button class="small-btn secondary" id="solo-champ-lock-btn">🔓 Non verrouillé</button>
-              </div>
-            </div>
-            <div class="output" id="solo-champ-output">
-              <span class="placeholder">Aucun champion tiré pour l’instant.</span>
-            </div>
-          </div>
-
-          <!-- Runes -->
-          <div class="card" id="card-solo-runes">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">📜</span>
-                <span>Runes</span>
-              </div>
-              <span class="pill">Plus ou moins sérieuses selon le troll</span>
-            </div>
-            <div class="card-subtitle">
-              Laisse l’appli te faire une page de runes, ou choisis juste les arbres.
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="solo-rune-mode" value="full" checked />
-                Tirage complet
-              </label>
-              <label>
-                <input type="radio" name="solo-rune-mode" value="trees" />
-                Arbres seulement
-              </label>
-              <label>
-                <input type="radio" name="solo-rune-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div class="row">
-              <div class="hint">
-                Avec un troll bas, on essaie vaguement d’être logique (AP/AD). Avec un troll haut… pas du tout.
-              </div>
-              <button class="small-btn" id="solo-runes-random-btn">🎲 Random runes</button>
-            </div>
-            <div class="output" id="solo-runes-output">
-              <span class="placeholder">Runes en attente de tirage.</span>
-            </div>
-          </div>
-
-          <!-- Summoners -->
-          <div class="card" id="card-solo-sums">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">✨</span>
-                <span>Sorts d’invocateur</span>
-              </div>
-              <span class="pill">Flash ou full YOLO</span>
-            </div>
-            <div class="card-subtitle">
-              Aléatoire total, ou au moins un Flash. On peut aussi être sympa avec les junglers.
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="solo-sum-mode" value="full" checked />
-                Aléatoire complet
-              </label>
-              <label>
-                <input type="radio" name="solo-sum-mode" value="flashPlus" />
-                Au moins un Flash
-              </label>
-              <label>
-                <input type="radio" name="solo-sum-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="checkbox" id="solo-sum-smart-jg" checked />
-                Si voie Jungle et troll bas → garder Smite + quelque chose de raisonnable
-              </label>
-            </div>
-            <div class="row">
-              <div class="hint">
-                Plus tu montes le troll, plus les sorts deviennent… discutables.
-              </div>
-              <button class="small-btn" id="solo-sums-random-btn">🎲 Random summoners</button>
-            </div>
-            <div class="output" id="solo-sums-output">
-              <span class="placeholder">Pas encore de sorts générés.</span>
-            </div>
-          </div>
-
-          <!-- Items -->
-          <div class="card" id="card-solo-items">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">🧳</span>
-                <span>Objets & bottes</span>
-              </div>
-              <span class="pill">Toujours une paire de bottes</span>
-            </div>
-            <div class="card-subtitle">
-              On garantit les bottes, le reste dépend de ton niveau de troll et du mode choisi.
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="solo-item-mode" value="adapted" checked />
-                Aléatoire adapté au champion / rôle
-              </label>
-              <label>
-                <input type="radio" name="solo-item-mode" value="full" />
-                Aléatoire complet
-              </label>
-              <label>
-                <input type="radio" name="solo-item-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div class="row">
-              <div class="hint">
-                Build complet : 1 paire de bottes + 5 objets. En troll max, tout est possible.
-              </div>
-              <button class="small-btn" id="solo-items-random-btn">🎲 Random objets</button>
-            </div>
-            <div class="output" id="solo-items-output">
-              <span class="placeholder">Aucun objet tiré pour l’instant.</span>
-            </div>
-          </div>
-
-          <!-- Actions globales solo -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">🎮</span>
-                <span>Actions globales</span>
-              </div>
-              <span class="pill muted">Solo</span>
-            </div>
-            <div class="solo-actions">
-              <div class="solo-actions-left">
-                <button class="btn-main primary" id="solo-random-all">
-                  🎲 Tout random (solo)
-                </button>
-              </div>
-              <div class="solo-actions-right">
-                <button class="btn-main secondary" id="solo-copy">
-                  📋 Copier le build
-                </button>
-              </div>
-            </div>
-            <div id="solo-challenge-box" class="challenge-box">
-              <div class="challenge-title">
-                <span>Défi de la game</span>
-                <button class="small-btn secondary" id="solo-challenge-reroll">🔁 Reroll défi</button>
-              </div>
-              <div class="challenge-text" id="solo-challenge-text">
-                Tu dois rush tes bottes avant d’acheter le moindre autre objet.
-              </div>
-            </div>
-            <div class="hint-small">
-              Le build est copié dans ton presse-papiers si ton navigateur l’autorise. Tu peux le coller sur Discord directement.
-            </div>
-          </div>
-        </div>
-
-        <!-- TEAM VIEW -->
-        <div class="view" id="view-team">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">👥</span>
-                <span>Équipe complète</span>
-              </div>
-              <span class="pill">5 rôles, 5 clowns potentiels</span>
-            </div>
-            <div class="card-subtitle">
-              Génère une équipe entière en un clic. Les règles de troll & de logique restent globalement les mêmes que pour le solo.
-            </div>
-            <div class="row">
-              <div class="hint">
-                Pour chaque rôle : champion, sorts, bottes + 2 objets (pour ne pas surcharger).
-              </div>
-              <button class="btn-main primary" id="team-random-all">🎲 Random team</button>
-            </div>
-            <div style="margin-top:8px; max-height:260px; overflow-y:auto;">
-              <table class="team-table" id="team-table">
-                <thead>
-                  <tr>
-                    <th>Rôle</th>
-                    <th>Champion</th>
-                    <th>Runes (résumé)</th>
-                    <th>Summoners</th>
-                    <th>Objets</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <div class="hint-small">
-              Le tirage d’équipe est influencé par le niveau de troll global.
-            </div>
-          </div>
-        </div>
-
-        <!-- ARAM VIEW -->
-        <div class="view" id="view-aram">
-          <div class="view-note">
-            Mode ARAM : pas de voie, que du chaos avec un champion, runes, sorts et build générés pour l’allée centrale.
-          </div>
-
-          <div class="card" id="card-aram-champ">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">🎪</span>
-                <span>Champion ARAM</span>
-              </div>
-              <span class="pill">Pool global ou perso</span>
-            </div>
-            <div class="card-subtitle">
-              En ARAM, tout le monde au même endroit, mais ça n’empêche pas la RNG.
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="aram-champ-mode" value="full" checked />
-                Aléatoire complet
-              </label>
-              <label>
-                <input type="radio" name="aram-champ-mode" value="myPool" />
-                Mon pool perso
-              </label>
-              <label>
-                <input type="radio" name="aram-champ-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div>
-              <textarea
-                id="aram-my-pool-input"
-                class="pool-input"
-                placeholder="Tu peux réutiliser le même pool ou en définir un spécial ARAM."
-              ></textarea>
-              <div class="row">
-                <div class="hint">
-                  Si vide, on utilisera le pool solo si tu en as défini un, sinon tous les champions.
-                </div>
-                <button class="small-btn secondary" id="aram-my-pool-save">💾 Sauvegarder pool ARAM</button>
-              </div>
-              <div class="chips" id="aram-my-pool-chips"></div>
-            </div>
-            <div class="row" style="margin-top:6px;">
-              <div style="flex:1; min-width:120px;">
-                <input
-                  type="text"
-                  id="aram-champ-manual"
-                  placeholder="Nom du champion (si choix manuel)"
-                  style="
-                    width: 100%;
-                    border-radius: 10px;
-                    border: 1px solid rgba(148,163,184,0.7);
-                    background: rgba(15,23,42,0.95);
-                    color:#e5e7eb;
-                    font-size:0.8rem;
-                    padding:5px 8px;
-                    box-sizing:border-box;
-                  "
-                />
-              </div>
-              <button class="small-btn" id="aram-champ-random-btn">🎲 Random champ ARAM</button>
-            </div>
-            <div class="output" id="aram-champ-output">
-              <span class="placeholder">Pas encore de champion ARAM.</span>
-            </div>
-          </div>
-
-          <div class="card" id="card-aram-runes">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">📜</span>
-                <span>Runes ARAM</span>
-              </div>
-              <span class="pill">Standard ou chaos</span>
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="aram-rune-mode" value="full" checked />
-                Tirage complet
-              </label>
-              <label>
-                <input type="radio" name="aram-rune-mode" value="trees" />
-                Arbres seulement
-              </label>
-              <label>
-                <input type="radio" name="aram-rune-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div class="row">
-              <div class="hint">
-                Les mêmes règles de troll s’appliquent qu’en mode solo.
-              </div>
-              <button class="small-btn" id="aram-runes-random-btn">🎲 Random runes ARAM</button>
-            </div>
-            <div class="output" id="aram-runes-output">
-              <span class="placeholder">Runes ARAM en attente.</span>
-            </div>
-          </div>
-
-          <div class="card" id="card-aram-sums">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">✨</span>
-                <span>Summoners ARAM</span>
-              </div>
-              <span class="pill">Heal, Ghost… ou n’importe quoi</span>
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="aram-sum-mode" value="full" checked />
-                Aléatoire complet
-              </label>
-              <label>
-                <input type="radio" name="aram-sum-mode" value="flashPlus" />
-                Au moins un Flash
-              </label>
-              <label>
-                <input type="radio" name="aram-sum-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div class="row">
-              <div class="hint">
-                En ARAM, Heal / Ghost sont fréquents… mais on ne te garantit rien en troll max.
-              </div>
-              <button class="small-btn" id="aram-sums-random-btn">🎲 Random summoners ARAM</button>
-            </div>
-            <div class="output" id="aram-sums-output">
-              <span class="placeholder">Pas encore de sorts pour l’ARAM.</span>
-            </div>
-          </div>
-
-          <div class="card" id="card-aram-items">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">🧳</span>
-                <span>Objets ARAM</span>
-              </div>
-              <span class="pill">Bottes + build</span>
-            </div>
-            <div class="radio-row">
-              <label>
-                <input type="radio" name="aram-item-mode" value="adapted" checked />
-                Adapté au champion
-              </label>
-              <label>
-                <input type="radio" name="aram-item-mode" value="full" />
-                Full random
-              </label>
-              <label>
-                <input type="radio" name="aram-item-mode" value="manual" />
-                Choix manuel
-              </label>
-            </div>
-            <div class="row">
-              <div class="hint">
-                ARAM = dégâts, sustain, fun. Ou alors Warmog sur Jhin, selon le troll.
-              </div>
-              <button class="small-btn" id="aram-items-random-btn">🎲 Random objets ARAM</button>
-            </div>
-            <div class="output" id="aram-items-output">
-              <span class="placeholder">Pas encore de build ARAM.</span>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">
-                <span class="icon">🎮</span>
-                <span>Actions ARAM</span>
-              </div>
-              <span class="pill muted">ARAM</span>
-            </div>
-            <div class="solo-actions">
-              <div class="solo-actions-left">
-                <button class="btn-main primary" id="aram-random-all">
-                  🎲 Tout random (ARAM)
-                </button>
-              </div>
-              <div class="solo-actions-right">
-                <button class="btn-main secondary" id="aram-copy">
-                  📋 Copier le build ARAM
-                </button>
-              </div>
-            </div>
-            <div class="hint-small">
-              La logique est globale : plus le troll est haut, plus la game ressemble à un ARAM bronze.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sidebar">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <span class="icon">🧾</span>
-              <span>Historique rapide</span>
-            </div>
-            <span class="pill muted">3 derniers tirages</span>
-          </div>
-          <div class="history-card" id="history-list"></div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <span class="icon">💡</span>
-              <span>Astuce</span>
-            </div>
-          </div>
-          <div style="font-size:0.8rem; color:#e5e7eb;">
-            - Tu peux monter ou descendre le niveau de troll à tout moment.<br/>
-            - Le mode solo est le plus complet. Les modes Équipe et ARAM vont plus vite.<br/>
-            - Si un tirage te plaît, copie le build avant d’en relancer un autre.
-          </div>
-        </div>
-      </div>
+    <div class="button-row" id="mode-selector">
+      <div class="btn-option selected" data-mode="solo">Solo</div>
+      <div class="btn-option" data-mode="team">Équipe complète</div>
+      <div class="btn-option" data-mode="aram">ARAM</div>
     </div>
   </div>
 
-  <script>
-    // ======== DATA =========
-    const champions = [
-      "Aatrox", "Ahri", "Akali", "Alistar", "Amumu", "Anivia", "Annie", "Aphelios",
-      "Ashe", "Aurelion Sol", "Azir", "Bard", "Blitzcrank", "Brand", "Braum",
-      "Caitlyn", "Camille", "Cassiopeia", "Cho'Gath", "Corki", "Darius", "Diana",
-      "Draven", "Ekko", "Elise", "Evelynn", "Ezreal", "Fiora", "Fizz", "Galio",
-      "Garen", "Gnar", "Gragas", "Graves", "Gwen", "Hecarim", "Heimerdinger",
-      "Illaoi", "Irelia", "Ivern", "Janna", "Jarvan IV", "Jax", "Jayce", "Jhin",
-      "Jinx", "Kai'Sa", "Kalista", "Karma", "Karthus", "Kassadin", "Katarina",
-      "Kayle", "Kayn", "Kennen", "Kha'Zix", "Kindred", "Kled", "LeBlanc", "Lee Sin",
-      "Leona", "Lillia", "Lissandra", "Lucian", "Lulu", "Lux", "Malphite",
-      "Malzahar", "Maokai", "Master Yi", "Miss Fortune", "Morgana", "Nami",
-      "Nasus", "Nautilus", "Neeko", "Nidalee", "Nocturne", "Olaf", "Orianna",
-      "Ornn", "Pantheon", "Poppy", "Pyke", "Quinn", "Rakan", "Rammus", "Rek'Sai",
-      "Renekton", "Rengar", "Riven", "Rumble", "Ryze", "Samira", "Sejuani",
-      "Senna", "Seraphine", "Sett", "Shaco", "Shen", "Shyvana", "Sivir", "Sona",
-      "Soraka", "Swain", "Sylas", "Syndra", "Tahm Kench", "Taliyah", "Talon",
-      "Taric", "Teemo", "Thresh", "Tristana", "Tryndamere", "Twisted Fate",
-      "Twitch", "Udyr", "Urgot", "Varus", "Vayne", "Veigar", "Vel'Koz", "Vi",
-      "Viego", "Viktor", "Vladimir", "Volibear", "Warwick", "Wukong", "Xayah",
-      "Xerath", "Xin Zhao", "Yasuo", "Yone", "Yorick", "Yuumi", "Zac", "Zed",
-      "Ziggs", "Zilean", "Zoe", "Zyra", "Yunara", "Zaahen"
-    ];
+  <!-- Carte : Choix de la voie -->
+  <div class="card">
+    <h2>Choix de la voie</h2>
+    <div class="button-row" id="lane-selector">
+      <div class="btn-option selected" data-lane="top">Top</div>
+      <div class="btn-option" data-lane="jungle">Jungle</div>
+      <div class="btn-option" data-lane="mid">Mid</div>
+      <div class="btn-option" data-llane="adc" data-lane="adc">ADC</div>
+      <div class="btn-option" data-lane="support">Support</div>
+    </div>
+  </div>
 
-    const lanePools = {
-      top: ["Darius", "Garen", "Camille", "Fiora", "Illaoi", "Malphite", "Renekton", "Ornn", "Riven", "Shen", "Gnar"],
-      jungle: ["Lee Sin", "Kayn", "Kha'Zix", "Elise", "Graves", "Hecarim", "Sejuani", "Shaco", "Evelynn", "Jarvan IV", "Udyr"],
-      mid: ["Ahri", "Zed", "Yasuo", "Yone", "Akali", "Fizz", "Annie", "Syndra", "Orianna", "LeBlanc", "Viktor"],
-      adc: ["Jinx", "Ashe", "Caitlyn", "Ezreal", "Kai'Sa", "Xayah", "Varus", "Tristana", "Samira", "Miss Fortune", "Twitch"],
-      support: ["Leona", "Thresh", "Nautilus", "Lulu", "Janna", "Nami", "Braum", "Yuumi", "Rakan", "Morgana", "Soraka"]
-    };
+  <!-- Carte : Champion -->
+  <div class="card">
+    <h2>Champion</h2>
+    <div class="button-row" id="champion-mode">
+      <div class="btn-option selected" data-champ="random">Aléatoire complet</div>
+      <div class="btn-option" data-champ="role">Adapté au rôle</div>
+      <div class="btn-option" data-champ="manual">Choix manuel</div>
+    </div>
 
-    const runeKeystones = {
-      Precision: ["Conquérant", "Tempo mortel", "Jeu de jambes"],
-      Domination: ["Moisson noire", "Électrocution", "Déluge de lames"],
-      Sorcellerie: ["Invocation d'Aery", "Comète arcanique", "Rush phasique"],
-      Volonte: ["Poigne de l'immortel", "Après-coup", "Gardien"],
-      Inspiration: ["Optimisation glaciale", "Pied marin", "Première frappe"]
-    };
-    const runeTrees = Object.keys(runeKeystones);
+    <input type="text" id="manual-champion" placeholder="Entrer un champion..." style="width: 100%; padding: 12px; margin-top: 8px; display: none;">
+  </div>
 
-    const summoners = ["Flash", "Smite", "Barrier", "Heal", "Ghost", "Ignite", "Cleanse", "Teleport"];
-    const aramFavoredSummoners = ["Heal", "Ghost", "Barrier", "Flash"];
+  <!-- Carte : Runes -->
+  <div class="card">
+    <h2>Runes</h2>
+    <div class="button-row" id="runes-mode">
+      <div class="btn-option selected" data-runes="full">Runes complètes</div>
+      <div class="btn-option" data-runes="trees">Arbres uniquement</div>
+      <div class="btn-option" data-runes="manual">Manuel</div>
+    </div>
+  </div>
 
-    const bootsGeneral = ["Bottes de célérité", "Jambières du berserker", "Sandales de mercure", "Tabi ninja", "Bottes de lucidité"];
-    const bootsAP = ["Chaussures du sorcier", "Bottes de lucidité"];
-    const bootsArmor = ["Tabi ninja"];
-    const itemsAD = ["Lame d'infini", "Percepteur", "Soif-de-sang", "Lame spectre de Youmuu", "Épée vespérale de Draktharr", "Danseur fantôme"];
-    const itemsAP = ["Coiffe de Rabadon", "Morellonomicon", "Sceptre de Rylai", "Tempête de Luden", "Étreinte démoniaque"];
-    const itemsTank = ["Armure de Warmog", "Cotte épineuse", "Égide solaire", "Pressuriseur", "Visage spirituel", "Cœur gelé"];
-    const itemsSupport = ["Rédemption", "Mikael", "Encensoir ardent", "Médaillon de l'Iron Solari", "Putrificateur technochimique"];
-    const itemsJungle = ["Machette du chasseur", "Talisman du chasseur", "Lame du traqueur", "Couteau du rôdeur"];
-    const itemsGeneric = ["Danse de la mort", "Ange gardien", "Maillet gelé", "Bâton du vide", "Couperet noir", "Lame enragée de Guinsoo"];
+  <!-- Carte : Sorts -->
+  <div class="card">
+    <h2>Sorts d'invocateur</h2>
+    <div class="button-row" id="summoners-mode">
+      <div class="btn-option selected" data-sum="full">Aléatoire complet</div>
+      <div class="btn-option" data-sum="flash">Flash + random</div>
+      <div class="btn-option" data-sum="manual">Choix manuel</div>
+    </div>
+  </div>
 
-    const challenges = [
-      "Tu dois rush tes bottes avant d’acheter le moindre autre objet.",
-      "Tu n’as pas le droit de parler dans le chat (mute all dès le début).",
-      "Tu dois tenter une invade niveau 1, quoi qu’il arrive.",
-      "Tu dois roam au moins une fois avant le niveau 3.",
-      "Tu n’as le droit d’acheter qu’un seul objet de dégâts, le reste en tank/soutien.",
-      "Tu dois danser (touche /dance) après chaque kill ou assist.",
-      "Tu dois aider ta lane voisine avant le niveau 6, même si c’est une mauvaise idée.",
-      "Tu dois acheter au moins un objet complètement troll pour ton champion.",
-      "Tu dois rester avec ton jungler pendant ses deux premiers clears.",
-      "Tu dois all-in au niveau 2 dès que possible."
-    ];
+  <!-- Carte : Objets -->
+  <div class="card">
+    <h2>Objets</h2>
+    <div class="button-row" id="items-mode">
+      <div class="btn-option selected" data-items="adapted">Adapté au champion</div>
+      <div class="btn-option" data-items="random">Totalement random</div>
+      <div class="btn-option" data-items="manual">Manuel</div>
+    </div>
+  </div>
 
-    const teamRoles = ["top", "jungle", "mid", "adc", "support"];
+  <!-- Boutons principaux -->
+  <button class="generate-btn" id="generate-build">🎮 Générer le build final</button>
+  <button class="random-all-btn" id="random-everything">🎲 TOUT RANDOM</button>
 
-    const state = {
-      mode: "solo",
-      trollLevel: 1,
-      solo: {
-        lane: "top",
-        laneRandom: false,
-        champLocked: false,
-        champ: null,
-        runes: null,
-        summoners: null,
-        items: null,
-        challenge: null
-      },
-      aram: {
-        champ: null,
-        runes: null,
-        summoners: null,
-        items: null
-      },
-      myPoolSolo: [],
-      myPoolAram: [],
-      history: []
-    };
+  <!-- Résultat final -->
+  <div class="final-build" id="final-build">
+    <h2 style="margin-top: 0; font-size: 28px; text-align: center;">Ton Build Final 🔥</h2>
 
-    function pickRandom(arr) {
-      if (!arr || arr.length === 0) return null;
-      const i = Math.floor(Math.random() * arr.length);
-      return arr[i];
-    }
+    <div class="final-section">
+      <h3>Champion</h3>
+      <div id="final-champion"></div>
+      <div class="reroll-row"><button class="reroll-btn" id="reroll-champion">Reroll Champion</button></div>
+    </div>
 
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+    <div class="final-section">
+      <h3>Runes</h3>
+      <div id="final-runes"></div>
+      <div class="reroll-row"><button class="reroll-btn" id="reroll-runes">Reroll Runes</button></div>
+    </div>
 
-    function addShake(el) {
-      if (!el) return;
-      el.classList.remove("shake");
-      void el.offsetWidth;
-      el.classList.add("shake");
-      setTimeout(() => el.classList.remove("shake"), 220);
-    }
+    <div class="final-section">
+      <h3>Sorts</h3>
+      <div id="final-summoners"></div>
+      <div class="reroll-row"><button class="reroll-btn" id="reroll-summoners">Reroll Sorts</button></div>
+    </div>
 
-    function addSpin(el) {
-      if (!el) return;
-      el.classList.remove("spin");
-      void el.offsetWidth;
-      el.classList.add("spin");
-      setTimeout(() => el.classList.remove("spin"), 300);
-    }
+    <div class="final-section">
+      <h3>Objets</h3>
+      <div id="final-items"></div>
+      <div class="reroll-row"><button class="reroll-btn" id="reroll-items">Reroll Objets</button></div>
+    </div>
 
-    function normalizeName(str) {
-      return str.trim();
-    }
+    <div class="final-section">
+      <h3>Défi</h3>
+      <div id="final-challenge"></div>
+      <div class="reroll-row"><button class="reroll-btn" id="reroll-challenge">Reroll Défi</button></div>
+    </div>
+  </div>
+<script>
+  const state = {
+    trollLevel: 1,
+    mode: "solo",
+    lane: "top",
+    championMode: "random",
+    runesMode: "full",
+    summonersMode: "full",
+    itemsMode: "adapted",
 
-    function parsePool(text) {
-      return text
-        .split(",")
-        .map(normalizeName)
-        .filter((x) => x.length > 0);
-    }
+    champion: null,
+    runes: null,
+    summoners: null,
+    items: null,
+    challenge: null,
+  };
 
-    function saveLocal(key, value) {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
-      } catch (e) {}
-    }
+  // -------------------------------
+  // Utils
+  // -------------------------------
+  function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 
-    function loadLocal(key, defaultVal) {
-      try {
-        const v = localStorage.getItem(key);
-        if (!v) return defaultVal;
-        return JSON.parse(v);
-      } catch (e) {
-        return defaultVal;
-      }
-    }
-
-    function updateTrollTag() {
-      const lvl = state.trollLevel;
-      const tag = document.getElementById("troll-tag");
-      tag.classList.remove("level-0", "level-1", "level-2");
-      if (lvl === 0) {
-        tag.textContent = "Standard";
-        tag.classList.add("level-0");
-      } else if (lvl === 1) {
-        tag.textContent = "Spicy";
-        tag.classList.add("level-1");
-      } else {
-        tag.textContent = "Clown fiesta";
-        tag.classList.add("level-2");
-      }
-    }
-
-    function getCheckedValue(name) {
-      const els = document.querySelectorAll(`input[name="${name}"]`);
-      for (const el of els) {
-        if (el.checked) return el.value;
-      }
-      return null;
-    }
-
-    function randomLane() {
-      const lanes = ["top", "jungle", "mid", "adc", "support"];
-      return pickRandom(lanes);
-    }
-
-    function randomChampionSolo() {
-      const mode = getCheckedValue("solo-champ-mode");
-      const lane = state.solo.lane || "top";
-
-      if (mode === "manual") {
-        const manual = normalizeName(document.getElementById("solo-champ-manual").value);
-        if (manual) return manual;
-        return pickRandom(champions);
-      }
-
-      if (mode === "myPool") {
-        const pool = state.myPoolSolo && state.myPoolSolo.length ? state.myPoolSolo : champions;
-        return pickRandom(pool);
-      }
-
-      if (mode === "lanePool") {
-        const pool = lanePools[lane];
-        if (pool && pool.length) return pickRandom(pool);
-        return pickRandom(champions);
-      }
-
-      return pickRandom(champions);
-    }
-
-    function randomChampionAram() {
-      const mode = getCheckedValue("aram-champ-mode");
-      if (mode === "manual") {
-        const manual = normalizeName(document.getElementById("aram-champ-manual").value);
-        if (manual) return manual || pickRandom(champions);
-      }
-
-      let pool = champions;
-      if (mode === "myPool") {
-        if (state.myPoolAram && state.myPoolAram.length) {
-          pool = state.myPoolAram;
-        } else if (state.myPoolSolo && state.myPoolSolo.length) {
-          pool = state.myPoolSolo;
-        }
-      }
-      return pickRandom(pool);
-    }
-
-    function randomRunesSummary(isAram = false) {
-      const mode = getCheckedValue(isAram ? "aram-rune-mode" : "solo-rune-mode");
-      if (mode === "manual") {
-        return "Runes choisies manuellement.";
-      }
-
-      const troll = state.trollLevel;
-      let primary, secondary;
-
-      if (troll === 0) {
-        const pseudoLogicTrees = ["Precision", "Domination", "Sorcellerie", "Volonte"];
-        primary = pickRandom(pseudoLogicTrees);
-        secondary = pickRandom(runeTrees.filter((t) => t !== primary));
-      } else if (troll === 1) {
-        primary = pickRandom(runeTrees);
-        secondary = pickRandom(runeTrees.filter((t) => t !== primary));
-      } else {
-        primary = pickRandom(runeTrees);
-        secondary = pickRandom(runeTrees);
-      }
-
-      const keystoneList = runeKeystones[primary] || [];
-      const keystone = pickRandom(keystoneList) || "Keystone random";
-
-      if (mode === "trees") {
-        return `${primary} (principal) + ${secondary} (secondaire)`;
-      }
-
-      const minorStats = ["Vitesse d'attaque", "Adaptatif", "Armure", "RM", "Hâte de compétence"];
-      const statsRandom = shuffle(minorStats).slice(3);
-      return `${primary} – ${keystone} | ${secondary} + stats : ${statsRandom.join(", ")}`;
-    }
-
-    function randomSummoners(lane, modeName, isAram = false) {
-      const mode = getCheckedValue(modeName);
-      if (mode === "manual") {
-        return "Sorts choisis manuellement.";
-      }
-
-      const troll = state.trollLevel;
-      let pool = summoners.slice();
-
-      function rollPair(fromPool) {
-        let s1 = pickRandom(fromPool);
-        let s2 = pickRandom(fromPool);
-        while (s2 === s1 && fromPool.length > 1) {
-          s2 = pickRandom(fromPool);
-        }
-        return [s1, s2];
-      }
-
-      if (isAram && troll === 0) {
-        pool = pool.concat(aramFavoredSummoners).concat(aramFavoredSummoners);
-      }
-
-      let result;
-      if (mode === "full") {
-        result = rollPair(pool);
-      } else {
-        if (troll === 2) {
-          if (Math.random() < 0.4) {
-            result = rollPair(pool);
-          } else {
-            const rest = pool.filter((s) => s !== "Flash");
-            result = ["Flash", pickRandom(rest)];
-          }
-        } else {
-          const rest = pool.filter((s) => s !== "Flash");
-          result = ["Flash", pickRandom(rest)];
-        }
-      }
-
-      if (!isAram && lane === "jungle") {
-        const smart = document.getElementById("solo-sum-smart-jg").checked;
-        if (smart && troll === 0) {
-          if (!result.includes("Smite")) {
-            result[1] = "Smite";
-          }
-        }
-      }
-
-      return result.join(" + ");
-    }
-
-    function randomItems(lane, champName, modeName, isAram = false, short = false) {
-      const mode = getCheckedValue(modeName);
-      if (mode === "manual") {
-        return "Objets choisis manuellement.";
-      }
-
-      const troll = state.trollLevel;
-
-      function bootsPool() {
-        if (lane === "top" || lane === "jungle" || lane === "support") {
-          return bootsGeneral.concat(bootsArmor, bootsAP);
-        }
-        if (lane === "adc") {
-          return bootsGeneral.concat(bootsAP);
-        }
-        if (lane === "mid" || isAram) {
-          return bootsGeneral.concat(bootsAP);
-        }
-        return bootsGeneral;
-      }
-
-      let chosenBoots = pickRandom(bootsPool());
-
-      let pool = [];
-      if (mode === "full") {
-        pool = itemsAD.concat(itemsAP, itemsTank, itemsSupport, itemsJungle, itemsGeneric);
-      } else {
-        const name = (champName || "").toLowerCase();
-        const maybeAP = ["ahri","anivia","annie","brand","syndra","veigar","lux","zoe","viktor","lissandra","cassiopeia","orianna","akali"];
-        const maybeSupport = ["soraka","nami","lulu","janna","yuumi","morgana","rakan","thresh","leona","braum","taric"];
-        const maybeTank = ["malphite","ornn","sejuani","zac","sion","rammus","volibear","shen","maokai","nautilus"];
-        const isAP = maybeAP.some((k) => name.includes(k));
-        const isSupport = maybeSupport.some((k) => name.includes(k));
-        const isTank = maybeTank.some((k) => name.includes(k));
-
-        if (lane === "adc") {
-          pool = itemsAD.concat(itemsGeneric);
-        } else if (lane === "jungle") {
-          pool = itemsJungle.concat(itemsTank, itemsAD, itemsAP, itemsGeneric);
-        } else if (isSupport || lane === "support") {
-          pool = itemsSupport.concat(itemsAP, itemsTank, itemsGeneric);
-        } else if (isTank) {
-          pool = itemsTank.concat(itemsGeneric);
-        } else if (isAP) {
-          pool = itemsAP.concat(itemsGeneric);
-        } else {
-          pool = itemsAD.concat(itemsGeneric);
-        }
-
-        if (troll >= 1) {
-          pool = pool.concat(itemsAP, itemsTank, itemsSupport);
-        }
-      }
-
-      if (troll === 2) {
-        pool = pool.concat(itemsAD, itemsAP, itemsTank, itemsSupport, itemsGeneric);
-      }
-
-      const shuffled = shuffle(pool.filter((x) => x !== chosenBoots));
-      const itemCount = short ? 2 : 5;
-      const itemsPicked = shuffled.slice(0, itemCount);
-      return `${chosenBoots} + ${itemsPicked.join(" + ")}`;
-    }
-
-    function randomChallenge() {
-      return pickRandom(challenges);
-    }
-
-    function addHistoryEntry(title, body) {
-      state.history.unshift({
-        title,
-        body,
-        time: new Date().toLocaleTimeString()
+  function setSelected(parentId, value) {
+    document
+      .querySelectorAll(`#${parentId} .btn-option`)
+      .forEach((btn) => {
+        btn.classList.toggle("selected", btn.dataset[parentId.replace("-selector", "").replace("-mode", "")] === value);
       });
-      state.history = state.history.slice(0, 3);
-      renderHistory();
+  }
+
+  // -------------------------------
+  // TROLL LEVEL — dynamique
+  // -------------------------------
+  const trollText = {
+    0: "Tu joues propre. C’est mignon. Personne dans ta game ne fera pareil.",
+    1: "Tu veux pimenter la game. Tu vas surtout pimenter les reports.",
+    2: "Tu ne vises plus la victoire. Tu vises le chaos pur.",
+  };
+
+  function updateDynamicTitle() {
+    const lvl = state.trollLevel;
+    const icon = document.getElementById("dynamic-icon");
+    const subtitle = document.getElementById("dynamic-subtitle");
+
+    // Icones
+    const icons = ["😇", "🌶️", "🤡"];
+    icon.textContent = icons[lvl];
+
+    // Texte
+    subtitle.textContent = trollText[lvl];
+
+    // Wiggle si clown fiesta
+    if (lvl === 2) {
+      icon.style.animation = "wiggle 0.45s ease";
+      setTimeout(() => (icon.style.animation = "none"), 450);
     }
+  }
 
-    function renderHistory() {
-      const container = document.getElementById("history-list");
-      container.innerHTML = "";
-      if (!state.history.length) {
-        container.innerHTML = '<div style="color:#6b7280;">Aucun tirage pour l’instant.</div>';
-        return;
-      }
-      state.history.forEach((entry) => {
-        const div = document.createElement("div");
-        div.className = "history-entry";
-        div.innerHTML = `
-          <div class="history-title">${entry.title}</div>
-          <div class="history-meta">${entry.time}</div>
-          <div class="history-body">${entry.body}</div>
-        `;
-        container.appendChild(div);
-      });
-    }
+  document.getElementById("troll-level").addEventListener("input", (e) => {
+    state.trollLevel = Number(e.target.value);
+    updateDynamicTitle();
+  });
 
-    function copyToClipboard(text) {
-      if (!navigator.clipboard) {
-        alert("Ton navigateur ne permet pas la copie automatique. Copie le texte à la main :\n\n" + text);
-        return;
-      }
-      navigator.clipboard.writeText(text).then(
-        () => {
-          alert("Build copié dans le presse-papiers !");
-        },
-        () => {
-          alert("Impossible de copier automatiquement. Voici le build :\n\n" + text);
-        }
-      );
-    }
+  // -------------------------------
+  // Mode (solo / team / aram)
+  // -------------------------------
+  document.querySelectorAll("#mode-selector .btn-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.mode = btn.dataset.mode;
 
-    function renderLaneOutput() {
-      const out = document.getElementById("solo-lane-output");
-      out.innerHTML = "";
-      const span = document.createElement("span");
-      span.className = "tag";
-      span.textContent = `Voie : ${state.solo.lane.toUpperCase()}`;
-      out.appendChild(span);
-    }
-
-    function setActiveLaneButton() {
-      const buttons = document.querySelectorAll("#solo-lane-buttons .lane-btn");
-      buttons.forEach((btn) => {
-        if (btn.dataset.lane === state.solo.lane) {
-          btn.classList.add("active");
-        } else {
-          btn.classList.remove("active");
-        }
-      });
-    }
-
-    function renderMyPoolChips(containerId, pool) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = "";
-      if (!pool || !pool.length) {
-        container.innerHTML = '<span class="hint" style="font-size:0.75rem;">Pool vide.</span>';
-        return;
-      }
-      pool.forEach((c) => {
-        const chip = document.createElement("span");
-        chip.className = "chip";
-        chip.textContent = c;
-        container.appendChild(chip);
-      });
-    }
-
-    function buildSoloSummary() {
-      const lane = state.solo.lane.toUpperCase();
-      const champ = state.solo.champ || "???";
-      const runes = state.solo.runes || "Non spécifiées";
-      const sums = state.solo.summoners || "Non spécifiés";
-      const items = state.solo.items || "Non spécifiés";
-      const challengeText = (document.getElementById("enable-challenge").checked && state.solo.challenge)
-        ? `\nDéfi : ${state.solo.challenge}`
-        : "";
-      return [
-        `Mode SOLO – Voie ${lane}`,
-        `Champion : ${champ}`,
-        `Runes : ${runes}`,
-        `Sorts : ${sums}`,
-        `Objets : ${items}${challengeText}`
-      ].join("\n");
-    }
-
-    function buildAramSummary() {
-      const champ = state.aram.champ || "???";
-      const runes = state.aram.runes || "Non spécifiées";
-      const sums = state.aram.summoners || "Non spécifiés";
-      const items = state.aram.items || "Non spécifiés";
-      return [
-        "Mode ARAM",
-        `Champion : ${champ}`,
-        `Runes : ${runes}`,
-        `Sorts : ${sums}`,
-        `Objets : ${items}`
-      ].join("\n");
-    }
-
-    function switchMode(mode) {
-      state.mode = mode;
-      document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
-      document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
-      if (mode === "solo") {
-        document.getElementById("view-solo").classList.add("active");
-        document.getElementById("mode-solo").classList.add("active");
-      } else if (mode === "team") {
-        document.getElementById("view-team").classList.add("active");
-        document.getElementById("mode-team").classList.add("active");
-      } else {
-        document.getElementById("view-aram").classList.add("active");
-        document.getElementById("mode-aram").classList.add("active");
-      }
-    }
-
-    function randomSoloLaneIfNeeded(force = false) {
-      const checked = document.getElementById("solo-lane-random-check").checked;
-      if (!checked && !force) return;
-      const lane = randomLane();
-      state.solo.lane = lane;
-      setActiveLaneButton();
-      renderLaneOutput();
-      addShake(document.getElementById("solo-lane-output"));
-    }
-
-    function randomSoloChampion(forceEvenIfLocked = false) {
-      if (state.solo.champLocked && !forceEvenIfLocked) return;
-      const champ = randomChampionSolo();
-      state.solo.champ = champ;
-      const out = document.getElementById("solo-champ-output");
-      out.innerHTML = `<span class="tag">${champ}</span>`;
-      addSpin(out);
-    }
-
-    function randomSoloRunes() {
-      const runes = randomRunesSummary(false);
-      state.solo.runes = runes;
-      const out = document.getElementById("solo-runes-output");
-      out.textContent = runes;
-      addSpin(out);
-    }
-
-    function randomSoloSummoners() {
-      const lane = state.solo.lane;
-      const sums = randomSummoners(lane, "solo-sum-mode", false);
-      state.solo.summoners = sums;
-      const out = document.getElementById("solo-sums-output");
-      out.textContent = sums;
-      addShake(out);
-    }
-
-    function randomSoloItems() {
-      const modeName = "solo-item-mode";
-      const items = randomItems(state.solo.lane, state.solo.champ, modeName, false, false);
-      state.solo.items = items;
-      const out = document.getElementById("solo-items-output");
-      out.textContent = items;
-      addSpin(out);
-    }
-
-    function randomSoloChallenge() {
-      if (!document.getElementById("enable-challenge").checked) {
-        document.getElementById("solo-challenge-box").style.display = "none";
-        state.solo.challenge = null;
-        return;
-      }
-      document.getElementById("solo-challenge-box").style.display = "block";
-      const c = randomChallenge();
-      state.solo.challenge = c;
-      const out = document.getElementById("solo-challenge-text");
-      out.textContent = c;
-      addShake(out);
-    }
-
-    function randomAllSolo() {
-      randomSoloLaneIfNeeded(true);
-      randomSoloChampion();
-      randomSoloRunes();
-      randomSoloSummoners();
-      randomSoloItems();
-      randomSoloChallenge();
-      addHistoryEntry("Solo – " + (state.solo.champ || "???"), buildSoloSummary());
-    }
-
-    function randomTeamOnce() {
-      const tbody = document.querySelector("#team-table tbody");
-      tbody.innerHTML = "";
-
-      teamRoles.forEach((lane) => {
-        const baseLaneInSolo = state.solo.lane;
-        state.solo.lane = lane;
-        const champ = randomChampionSolo();
-        const runes = randomRunesSummary(false);
-        const sums = randomSummoners(lane, "solo-sum-mode", false);
-        const items = randomItems(lane, champ, "solo-item-mode", false, true);
-        state.solo.lane = baseLaneInSolo;
-
-        const tr = document.createElement("tr");
-        const labelLane = lane.toUpperCase();
-        tr.innerHTML = `
-          <td><span class="badge-role">${labelLane}</span></td>
-          <td>${champ}</td>
-          <td>${runes}</td>
-          <td>${sums}</td>
-          <td>${items}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      addHistoryEntry("Équipe complète", "Une team entière vient d’être générée.");
-    }
-
-    function randomAramRunes() {
-      const runes = randomRunesSummary(true);
-      state.aram.runes = runes;
-      const out = document.getElementById("aram-runes-output");
-      out.textContent = runes;
-      addSpin(out);
-    }
-
-    function randomAramSummoners() {
-      const sums = randomSummoners("aram", "aram-sum-mode", true);
-      state.aram.summoners = sums;
-      const out = document.getElementById("aram-sums-output");
-      out.textContent = sums;
-      addShake(out);
-    }
-
-    function randomAramItems() {
-      const items = randomItems("mid", state.aram.champ, "aram-item-mode", true, false);
-      state.aram.items = items;
-      const out = document.getElementById("aram-items-output");
-      out.textContent = items;
-      addSpin(out);
-    }
-
-    function randomAramChamp() {
-      const champ = randomChampionAram();
-      state.aram.champ = champ;
-      const out = document.getElementById("aram-champ-output");
-      out.innerHTML = `<span class="tag">${champ}</span>`;
-      addSpin(out);
-    }
-
-    function randomAllAram() {
-      randomAramChamp();
-      randomAramRunes();
-      randomAramSummoners();
-      randomAramItems();
-      addHistoryEntry("ARAM – " + (state.aram.champ || "???"), buildAramSummary());
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      state.myPoolSolo = loadLocal("lolRandomizerMyPoolSolo", []);
-      state.myPoolAram = loadLocal("lolRandomizerMyPoolAram", []);
-
-      document.getElementById("solo-my-pool-input").value = state.myPoolSolo.join(", ");
-      renderMyPoolChips("solo-my-pool-chips", state.myPoolSolo);
-
-      document.getElementById("aram-my-pool-input").value = state.myPoolAram.join(", ");
-      renderMyPoolChips("aram-my-pool-chips", state.myPoolAram.length ? state.myPoolAram : state.myPoolSolo);
-
-      const trollRange = document.getElementById("troll-level");
-      trollRange.addEventListener("input", () => {
-        const v = parseInt(trollRange.value, 10);
-        state.trollLevel = isNaN(v) ? 1 : v; // <-- CORRECTION : plus de "|| 1"
-        updateTrollTag();
-      });
-      updateTrollTag();
-
-      document.getElementById("mode-solo").addEventListener("click", () => switchMode("solo"));
-      document.getElementById("mode-team").addEventListener("click", () => switchMode("team"));
-      document.getElementById("mode-aram").addEventListener("click", () => switchMode("aram"));
-
-      const laneButtons = document.querySelectorAll("#solo-lane-buttons .lane-btn");
-      laneButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          state.solo.lane = btn.dataset.lane;
-          setActiveLaneButton();
-          renderLaneOutput();
-        });
-      });
-      renderLaneOutput();
-
-      document.getElementById("solo-lane-random-btn").addEventListener("click", () => {
-        randomSoloLaneIfNeeded(true);
-      });
-
-      document.getElementById("solo-my-pool-save").addEventListener("click", () => {
-        const pool = parsePool(document.getElementById("solo-my-pool-input").value);
-        state.myPoolSolo = pool;
-        saveLocal("lolRandomizerMyPoolSolo", pool);
-        renderMyPoolChips("solo-my-pool-chips", pool);
-        alert("Pool solo sauvegardé !");
-      });
-
-      document.getElementById("aram-my-pool-save").addEventListener("click", () => {
-        const pool = parsePool(document.getElementById("aram-my-pool-input").value);
-        state.myPoolAram = pool;
-        saveLocal("lolRandomizerMyPoolAram", pool);
-        renderMyPoolChips("aram-my-pool-chips", pool);
-        alert("Pool ARAM sauvegardé !");
-      });
-
-      document.getElementById("solo-champ-random-btn").addEventListener("click", () => {
-        randomSoloChampion(true);
-      });
-
-      document.getElementById("solo-champ-lock-btn").addEventListener("click", () => {
-        state.solo.champLocked = !state.solo.champLocked;
-        const btn = document.getElementById("solo-champ-lock-btn");
-        btn.textContent = state.solo.champLocked ? "🔒 Verrouillé" : "🔓 Non verrouillé";
-      });
-
-      document.getElementById("solo-runes-random-btn").addEventListener("click", randomSoloRunes);
-      document.getElementById("solo-sums-random-btn").addEventListener("click", randomSoloSummoners);
-      document.getElementById("solo-items-random-btn").addEventListener("click", randomSoloItems);
-
-      document.getElementById("enable-challenge").addEventListener("change", () => {
-        randomSoloChallenge();
-      });
-      document.getElementById("solo-challenge-reroll").addEventListener("click", randomSoloChallenge);
-
-      document.getElementById("solo-random-all").addEventListener("click", randomAllSolo);
-
-      document.getElementById("solo-copy").addEventListener("click", () => {
-        copyToClipboard(buildSoloSummary());
-      });
-
-      document.getElementById("team-random-all").addEventListener("click", randomTeamOnce);
-
-      document.getElementById("aram-champ-random-btn").addEventListener("click", randomAramChamp);
-      document.getElementById("aram-runes-random-btn").addEventListener("click", randomAramRunes);
-      document.getElementById("aram-sums-random-btn").addEventListener("click", randomAramSummoners);
-      document.getElementById("aram-items-random-btn").addEventListener("click", randomAramItems);
-      document.getElementById("aram-random-all").addEventListener("click", randomAllAram);
-      document.getElementById("aram-copy").addEventListener("click", () => {
-        copyToClipboard(buildAramSummary());
-      });
-
-      randomSoloChallenge();
-      renderHistory();
+      document.querySelectorAll("#mode-selector .btn-option").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
     });
-  </script>
+  });
+
+  // -------------------------------
+  // Lane
+  // -------------------------------
+  document.querySelectorAll("#lane-selector .btn-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.lane = btn.dataset.lane;
+
+      document.querySelectorAll("#lane-selector .btn-option").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+  });
+
+  // -------------------------------
+  // Champion Mode
+  // -------------------------------
+  document.querySelectorAll("#champion-mode .btn-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.championMode = btn.dataset.champ;
+
+      document.querySelectorAll("#champion-mode .btn-option").forEach((b) =>
+        b.classList.remove("selected")
+      );
+      btn.classList.add("selected");
+
+      // Mode manuel → montrer input
+      document.getElementById("manual-champion").style.display =
+        state.championMode === "manual" ? "block" : "none";
+    });
+  });
+
+  // -------------------------------
+  // Runes Mode
+  // -------------------------------
+  document.querySelectorAll("#runes-mode .btn-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.runesMode = btn.dataset.runes;
+
+      document.querySelectorAll("#runes-mode .btn-option").forEach((b) =>
+        b.classList.remove("selected")
+      );
+      btn.classList.add("selected");
+    });
+  });
+
+  // -------------------------------
+  // Summoners Mode
+  // -------------------------------
+  document.querySelectorAll("#summoners-mode .btn-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.summonersMode = btn.dataset.sum;
+
+      document.querySelectorAll("#summoners-mode .btn-option").forEach((b) =>
+        b.classList.remove("selected")
+      );
+      btn.classList.add("selected");
+    });
+  });
+
+  // -------------------------------
+  // Items Mode
+  // -------------------------------
+  document.querySelectorAll("#items-mode .btn-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.itemsMode = btn.dataset.items;
+
+      document.querySelectorAll("#items-mode .btn-option").forEach((b) =>
+        b.classList.remove("selected")
+      );
+      btn.classList.add("selected");
+    });
+  });
+
+  // -------------------------------
+  // Random generators
+  // -------------------------------
+
+  const champions = [
+    "Ahri", "Aatrox", "Ashe", "Brand", "Caitlyn", "Darius", "Ekko", "Ezreal",
+    "Garen", "Leona", "Lux", "Master Yi", "Morgana", "Nami", "Rengar", "Riven",
+    "Senna", "Sett", "Sylas", "Teemo", "Thresh", "Vayne", "Yasuo", "Yone",
+    "Yuumi", "Zed", "Ziggs", "Zoe", "Zaahen", "Yunara"
+  ];
+
+  const runesFull = [
+    "Électrocution + Sorcellerie",
+    "Conquérant + Volonté",
+    "Prédateur + Domination",
+    "Jeu de jambes + Inspiration",
+  ];
+
+  const summonersFull = [
+    "Flash + Ignite",
+    "Flash + Heal",
+    "Flash + Exhaust",
+    "Ghost + Ignite",
+    "Teleport + Flash"
+  ];
+
+  const itemsFull = [
+    "Bottes + Kraken Slayer + Lame spectre nocturne + Ange gardien",
+    "Bottes + Liandry + Rabadon + Bâton du vide",
+    "Bottes + Cœuracier + Plaque du mort + Force de la nature",
+    "Bottes + Épée vespérale + Muramana + Faux spectrale"
+  ];
+
+  const challenges = [
+    "Tu dois danser devant un ennemi avant de l'engager.",
+    "Tu dois écrire 'mid diff' même si tu n'es pas mid.",
+    "Tu dois hurler 'GO NEXT' vocalement toutes les 2 minutes.",
+    "Tu dois tenter un dive lvl 2 même si c’est une terrible idée."
+  ];
+
+  // -------------------------------
+  // GENERATORS
+  // -------------------------------
+
+  function genChampion() {
+    if (state.championMode === "random") return pick(champions);
+
+    if (state.championMode === "manual") {
+      const val = document.getElementById("manual-champion").value.trim();
+      return val || pick(champions);
+    }
+
+    if (state.championMode === "role") {
+      return pick(champions);
+    }
+
+    return pick(champions);
+  }
+
+  function genRunes() {
+    if (state.runesMode === "full") return pick(runesFull);
+    if (state.runesMode === "trees") return "Arbre principal : Domination / Secondaire : Volonté";
+    return "Runes manuelles (tu gères ça)";
+  }
+
+  function genSummoners() {
+    if (state.summonersMode === "manual") return "Manuels (tu cliques toi-même)";
+    if (state.summonersMode === "flash") return "Flash + " + pick(["Ignite", "Heal", "Ghost", "Exhaust"]);
+    return pick(summonersFull);
+  }
+
+  function genItems() {
+    if (state.itemsMode === "manual") return "Objets manuels (tu choisis)";
+    if (state.itemsMode === "random") return pick(itemsFull);
+    return pick(itemsFull);
+  }
+
+  function genChallenge() {
+    return pick(challenges);
+  }
+  // -------------------------------
+  // BUILD FINAL
+  // -------------------------------
+  function generateFinalBuild() {
+    state.champion = genChampion();
+    state.runes = genRunes();
+    state.summoners = genSummoners();
+    state.items = genItems();
+    state.challenge = genChallenge();
+
+    displayFinalBuild();
+  }
+
+  function displayFinalBuild() {
+    const final = document.getElementById("final-build");
+    final.style.display = "block";
+
+    document.getElementById("final-champion").textContent = state.champion;
+    document.getElementById("final-runes").textContent = state.runes;
+    document.getElementById("final-summoners").textContent = state.summoners;
+    document.getElementById("final-items").textContent = state.items;
+    document.getElementById("final-challenge").textContent = state.challenge;
+
+    // Secret Yuumi
+    if (state.trollLevel === 2 && state.champion.toLowerCase() === "yuumi") {
+      document.getElementById("dynamic-subtitle").textContent =
+        "Clown Fiesta + Yuumi : tu as atteint le niveau ‘bagage à main’. Bonne chance au propriétaire.";
+    }
+  }
+
+  // -------------------------------
+  // REROLLS
+  // -------------------------------
+  document.getElementById("reroll-champion").addEventListener("click", () => {
+    state.champion = genChampion();
+    document.getElementById("final-champion").textContent = state.champion;
+  });
+
+  document.getElementById("reroll-runes").addEventListener("click", () => {
+    state.runes = genRunes();
+    document.getElementById("final-runes").textContent = state.runes;
+  });
+
+  document.getElementById("reroll-summoners").addEventListener("click", () => {
+    state.summoners = genSummoners();
+    document.getElementById("final-summoners").textContent = state.summoners;
+  });
+
+  document.getElementById("reroll-items").addEventListener("click", () => {
+    state.items = genItems();
+    document.getElementById("final-items").textContent = state.items;
+  });
+
+  document.getElementById("reroll-challenge").addEventListener("click", () => {
+    state.challenge = genChallenge();
+    document.getElementById("final-challenge").textContent = state.challenge;
+  });
+
+  // -------------------------------
+  // MAIN BUTTONS
+  // -------------------------------
+  document.getElementById("generate-build").addEventListener("click", () => {
+    generateFinalBuild();
+  });
+
+  document.getElementById("random-everything").addEventListener("click", () => {
+    state.championMode = "random";
+    state.runesMode = "full";
+    state.summonersMode = "full";
+    state.itemsMode = "random";
+    state.lane = pick(["top", "mid", "jungle", "adc", "support"]);
+    state.trollLevel = Math.floor(Math.random() * 3);
+
+    document.getElementById("troll-level").value = state.trollLevel;
+    updateDynamicTitle();
+
+    generateFinalBuild();
+  });
+</script>
+</div>
 </body>
 </html>
