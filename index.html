@@ -1,67 +1,58 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8" />
-  <title>🎲 LoL Random Draft Machine – Le Chaos Organisé</title>
+  <title>LoL Randomizer – Draft Chaos Engine</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="description"
-    content="Randomizer League of Legends complet : champions, runes, sorts, items et défis. Niveau de troll ajustable, mode sérieux, spicy ou clown fiesta. Construis ou détruis ta game." />
+  <meta name="description" content="Randomizer League of Legends complet : champions, runes, sorts, items, et défis. Mode troll, dark humor, full random ou configuration précise – crée ton destin.">
 
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --bg-light: #1e293b;
-      --bg-card: #111827;
-      --accent: #6366f1;
-      --accent-soft: #818cf8;
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+      --bg-highlight: #1f2937;
+      --accent-blue: #3b82f6;
+      --accent-gold: #d4af37;
       --text: #f8fafc;
       --text-soft: #cbd5e1;
-      --danger: #ef4444;
-      --success: #22c55e;
-
-      font-family: "Segoe UI", system-ui, sans-serif;
+      --radius: 12px;
+      --shadow: 0 0 18px rgba(0, 0, 0, 0.45);
+      --transition: 0.2s ease;
     }
 
     body {
       margin: 0;
-      background: linear-gradient(150deg, #0f172a, #1e1b4b 60%, #312e81);
+      padding: 0;
+      background: linear-gradient(135deg, #0d1117, #1c2333 70%);
       color: var(--text);
-      min-height: 100vh;
+      font-family: "Segoe UI", sans-serif;
       padding: 24px;
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 1080px;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 0 32px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(6px);
     }
 
     h1 {
-      margin: 0;
-      font-size: 36px;
       display: flex;
       align-items: center;
       gap: 12px;
+      font-size: 36px;
+      margin: 0;
       font-weight: 700;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
     }
 
-    #dynamic-icon {
-      font-size: 42px;
-      display: inline-block;
-      transition: transform 0.25s ease;
+    #troll-icon {
+      font-size: 40px;
+      transition: transform 0.3s ease;
     }
 
-    .subtitle {
-      margin-top: 6px;
+    @keyframes wiggle {
+      0% { transform: rotate(-5deg) scale(1.1); }
+      50% { transform: rotate(6deg) scale(1.15); }
+      100% { transform: rotate(-6deg) scale(1.1); }
+    }
+
+    #troll-text {
+      margin-top: 4px;
       font-size: 16px;
       color: var(--text-soft);
       min-height: 24px;
@@ -69,557 +60,411 @@
 
     .card {
       background: var(--bg-card);
-      padding: 24px;
-      border-radius: 14px;
-      margin-top: 28px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.35);
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-top: 24px;
     }
 
     .card h2 {
       margin-top: 0;
-      margin-bottom: 16px;
-      font-size: 23px;
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      color: var(--accent-gold);
+      font-weight: 600;
+      font-size: 22px;
       margin-bottom: 16px;
     }
 
-    .btn-option {
-      background: var(--bg-light);
-      padding: 14px 18px;
-      border-radius: 10px;
+    .option-btn {
+      background: var(--bg-highlight);
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
       cursor: pointer;
-      border: 2px solid transparent;
+      margin: 4px;
       color: var(--text);
-      transition: 0.2s;
-      font-size: 16px;
-      user-select: none;
+      transition: var(--transition);
+      font-size: 15px;
+      display: inline-block;
     }
 
-    .btn-option:hover {
-      background: #334155;
+    .option-btn:hover { background: #243042; }
+    .option-btn.selected { border-color: var(--accent-blue); background: #1e3a8a; }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      background: #111827;
+      border: 1px solid #374151;
+      color: var(--text);
+      border-radius: var(--radius);
+      margin-top: 8px;
+      font-size: 15px;
     }
 
-    .btn-option.selected {
-      border-color: var(--accent);
-      background: #312e81;
-    }
-
-    .generate-btn,
-    .random-all-btn {
+    button.action {
       width: 100%;
       padding: 18px;
-      font-size: 20px;
-      border-radius: 12px;
-      cursor: pointer;
+      border-radius: var(--radius);
+      margin-top: 20px;
       border: none;
-      color: white;
-      margin-top: 24px;
-      transition: 0.2s;
+      font-size: 20px;
+      cursor: pointer;
+      transition: var(--transition);
     }
 
-    .generate-btn {
-      background: var(--accent);
-    }
+    #final-roll { background: var(--accent-blue); color: white; }
+    #final-roll:hover { background: #60a5fa; }
 
-    .generate-btn:hover {
-      background: var(--accent-soft);
-    }
+    #team-roll { background: #0ea5e9; color: white; }
+    #team-roll:hover { background: #38bdf8; }
 
-    .random-all-btn {
-      background: #475569;
-    }
+    #full-random { background: #374151; color: white; }
+    #full-random:hover { background: #4b5563; }
 
-    .random-all-btn:hover {
-      background: #64748b;
-    }
-
-    /* Build final */
-    .final-build {
-      margin-top: 32px;
-      padding: 32px;
-      background: rgba(17, 24, 39, 0.75);
-      border-radius: 18px;
-      box-shadow: 0 0 24px rgba(0, 0, 0, 0.55);
+    /* Modal */
+    #modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
       display: none;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(2px);
     }
 
-    .final-section {
-      margin-bottom: 22px;
+    #modal {
+      background: var(--bg-card);
+      padding: 28px;
+      border-radius: var(--radius);
+      max-width: 520px;
+      width: 90%;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
 
-    .final-section h3 {
-      margin: 0 0 8px 0;
-      font-size: 20px;
-      color: var(--accent-soft);
-    }
+    #modal h2 { margin-top: 0; color: var(--accent-gold); }
 
-    .reroll-row {
-      margin-top: 6px;
-    }
+    #result { font-size: 16px; line-height: 1.6; margin-top: 12px; }
 
-    .reroll-btn {
-      padding: 8px 12px;
-      background: #334155;
-      color: white;
+    #close-modal {
+      margin-top: 20px;
+      background: var(--accent-blue);
       border: none;
-      border-radius: 8px;
+      padding: 12px 20px;
+      color: white;
+      border-radius: var(--radius);
       cursor: pointer;
-      transition: 0.2s;
-      font-size: 14px;
-      margin-right: 8px;
+      width: 100%;
+      font-size: 17px;
     }
 
-    .reroll-btn:hover {
-      background: #475569;
-    }
+    #close-modal:hover { background: #4f8ff0; }
 
-    @keyframes wiggle {
-      0% {
-        transform: rotate(-6deg) scale(1.1);
-      }
-
-      50% {
-        transform: rotate(6deg) scale(1.15);
-      }
-
-      100% {
-        transform: rotate(-6deg) scale(1.1);
-      }
-    }
   </style>
 </head>
 
 <body>
-<div class="app">
-  <div class="title-block">
-    <h1>
-      <span id="dynamic-icon">🌶️</span>
-      LoL Random Draft Machine
-    </h1>
-    <div class="subtitle" id="dynamic-subtitle">
-      Tu veux pimenter la game. Tu vas surtout pimenter les reports.
-    </div>
-  </div>
-  <!-- Carte : Niveau de troll + mode -->
-  <div class="card">
-    <h2>Niveau de Troll</h2>
 
-    <div style="margin-bottom: 12px;">
-      <input type="range" id="troll-level" min="0" max="2" value="1" style="width: 100%;">
-    </div>
-
-    <div class="button-row" id="mode-selector">
-      <div class="btn-option selected" data-mode="solo">Solo</div>
-      <div class="btn-option" data-mode="team">Équipe complète</div>
-      <div class="btn-option" data-mode="aram">ARAM</div>
-    </div>
-  </div>
-
-  <!-- Carte : Choix de la voie -->
-  <div class="card">
-    <h2>Choix de la voie</h2>
-    <div class="button-row" id="lane-selector">
-      <div class="btn-option selected" data-lane="top">Top</div>
-      <div class="btn-option" data-lane="jungle">Jungle</div>
-      <div class="btn-option" data-lane="mid">Mid</div>
-      <div class="btn-option" data-llane="adc" data-lane="adc">ADC</div>
-      <div class="btn-option" data-lane="support">Support</div>
-    </div>
-  </div>
-
-  <!-- Carte : Champion -->
-  <div class="card">
-    <h2>Champion</h2>
-    <div class="button-row" id="champion-mode">
-      <div class="btn-option selected" data-champ="random">Aléatoire complet</div>
-      <div class="btn-option" data-champ="role">Adapté au rôle</div>
-      <div class="btn-option" data-champ="manual">Choix manuel</div>
-    </div>
-
-    <input type="text" id="manual-champion" placeholder="Entrer un champion..." style="width: 100%; padding: 12px; margin-top: 8px; display: none;">
-  </div>
-
-  <!-- Carte : Runes -->
-  <div class="card">
-    <h2>Runes</h2>
-    <div class="button-row" id="runes-mode">
-      <div class="btn-option selected" data-runes="full">Runes complètes</div>
-      <div class="btn-option" data-runes="trees">Arbres uniquement</div>
-      <div class="btn-option" data-runes="manual">Manuel</div>
-    </div>
-  </div>
-
-  <!-- Carte : Sorts -->
-  <div class="card">
-    <h2>Sorts d'invocateur</h2>
-    <div class="button-row" id="summoners-mode">
-      <div class="btn-option selected" data-sum="full">Aléatoire complet</div>
-      <div class="btn-option" data-sum="flash">Flash + random</div>
-      <div class="btn-option" data-sum="manual">Choix manuel</div>
-    </div>
-  </div>
-
-  <!-- Carte : Objets -->
-  <div class="card">
-    <h2>Objets</h2>
-    <div class="button-row" id="items-mode">
-      <div class="btn-option selected" data-items="adapted">Adapté au champion</div>
-      <div class="btn-option" data-items="random">Totalement random</div>
-      <div class="btn-option" data-items="manual">Manuel</div>
-    </div>
-  </div>
-
-  <!-- Boutons principaux -->
-  <button class="generate-btn" id="generate-build">🎮 Générer le build final</button>
-  <button class="random-all-btn" id="random-everything">🎲 TOUT RANDOM</button>
-
-  <!-- Résultat final -->
-  <div class="final-build" id="final-build">
-    <h2 style="margin-top: 0; font-size: 28px; text-align: center;">Ton Build Final 🔥</h2>
-
-    <div class="final-section">
-      <h3>Champion</h3>
-      <div id="final-champion"></div>
-      <div class="reroll-row"><button class="reroll-btn" id="reroll-champion">Reroll Champion</button></div>
-    </div>
-
-    <div class="final-section">
-      <h3>Runes</h3>
-      <div id="final-runes"></div>
-      <div class="reroll-row"><button class="reroll-btn" id="reroll-runes">Reroll Runes</button></div>
-    </div>
-
-    <div class="final-section">
-      <h3>Sorts</h3>
-      <div id="final-summoners"></div>
-      <div class="reroll-row"><button class="reroll-btn" id="reroll-summoners">Reroll Sorts</button></div>
-    </div>
-
-    <div class="final-section">
-      <h3>Objets</h3>
-      <div id="final-items"></div>
-      <div class="reroll-row"><button class="reroll-btn" id="reroll-items">Reroll Objets</button></div>
-    </div>
-
-    <div class="final-section">
-      <h3>Défi</h3>
-      <div id="final-challenge"></div>
-      <div class="reroll-row"><button class="reroll-btn" id="reroll-challenge">Reroll Défi</button></div>
-    </div>
-  </div>
-<script>
-  const state = {
-    trollLevel: 1,
-    mode: "solo",
-    lane: "top",
-    championMode: "random",
-    runesMode: "full",
-    summonersMode: "full",
-    itemsMode: "adapted",
-
-    champion: null,
-    runes: null,
-    summoners: null,
-    items: null,
-    challenge: null,
-  };
-
-  // -------------------------------
-  // Utils
-  // -------------------------------
-  function pick(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  function setSelected(parentId, value) {
-    document
-      .querySelectorAll(`#${parentId} .btn-option`)
-      .forEach((btn) => {
-        btn.classList.toggle("selected", btn.dataset[parentId.replace("-selector", "").replace("-mode", "")] === value);
-      });
-  }
-
-  // -------------------------------
-  // TROLL LEVEL — dynamique
-  // -------------------------------
-  const trollText = {
-    0: "Tu joues propre. C’est mignon. Personne dans ta game ne fera pareil.",
-    1: "Tu veux pimenter la game. Tu vas surtout pimenter les reports.",
-    2: "Tu ne vises plus la victoire. Tu vises le chaos pur.",
-  };
-
-  function updateDynamicTitle() {
-    const lvl = state.trollLevel;
-    const icon = document.getElementById("dynamic-icon");
-    const subtitle = document.getElementById("dynamic-subtitle");
-
-    // Icones
-    const icons = ["😇", "🌶️", "🤡"];
-    icon.textContent = icons[lvl];
-
-    // Texte
-    subtitle.textContent = trollText[lvl];
-
-    // Wiggle si clown fiesta
-    if (lvl === 2) {
-      icon.style.animation = "wiggle 0.45s ease";
-      setTimeout(() => (icon.style.animation = "none"), 450);
-    }
-  }
-
-  document.getElementById("troll-level").addEventListener("input", (e) => {
-    state.trollLevel = Number(e.target.value);
-    updateDynamicTitle();
-  });
-
-  // -------------------------------
-  // Mode (solo / team / aram)
-  // -------------------------------
-  document.querySelectorAll("#mode-selector .btn-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.mode = btn.dataset.mode;
-
-      document.querySelectorAll("#mode-selector .btn-option").forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-    });
-  });
-
-  // -------------------------------
-  // Lane
-  // -------------------------------
-  document.querySelectorAll("#lane-selector .btn-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.lane = btn.dataset.lane;
-
-      document.querySelectorAll("#lane-selector .btn-option").forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-    });
-  });
-
-  // -------------------------------
-  // Champion Mode
-  // -------------------------------
-  document.querySelectorAll("#champion-mode .btn-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.championMode = btn.dataset.champ;
-
-      document.querySelectorAll("#champion-mode .btn-option").forEach((b) =>
-        b.classList.remove("selected")
-      );
-      btn.classList.add("selected");
-
-      // Mode manuel → montrer input
-      document.getElementById("manual-champion").style.display =
-        state.championMode === "manual" ? "block" : "none";
-    });
-  });
-
-  // -------------------------------
-  // Runes Mode
-  // -------------------------------
-  document.querySelectorAll("#runes-mode .btn-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.runesMode = btn.dataset.runes;
-
-      document.querySelectorAll("#runes-mode .btn-option").forEach((b) =>
-        b.classList.remove("selected")
-      );
-      btn.classList.add("selected");
-    });
-  });
-
-  // -------------------------------
-  // Summoners Mode
-  // -------------------------------
-  document.querySelectorAll("#summoners-mode .btn-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.summonersMode = btn.dataset.sum;
-
-      document.querySelectorAll("#summoners-mode .btn-option").forEach((b) =>
-        b.classList.remove("selected")
-      );
-      btn.classList.add("selected");
-    });
-  });
-
-  // -------------------------------
-  // Items Mode
-  // -------------------------------
-  document.querySelectorAll("#items-mode .btn-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.itemsMode = btn.dataset.items;
-
-      document.querySelectorAll("#items-mode .btn-option").forEach((b) =>
-        b.classList.remove("selected")
-      );
-      btn.classList.add("selected");
-    });
-  });
-
-  // -------------------------------
-  // Random generators
-  // -------------------------------
-
-  const champions = [
-    "Ahri", "Aatrox", "Ashe", "Brand", "Caitlyn", "Darius", "Ekko", "Ezreal",
-    "Garen", "Leona", "Lux", "Master Yi", "Morgana", "Nami", "Rengar", "Riven",
-    "Senna", "Sett", "Sylas", "Teemo", "Thresh", "Vayne", "Yasuo", "Yone",
-    "Yuumi", "Zed", "Ziggs", "Zoe", "Zaahen", "Yunara"
-  ];
-
-  const runesFull = [
-    "Électrocution + Sorcellerie",
-    "Conquérant + Volonté",
-    "Prédateur + Domination",
-    "Jeu de jambes + Inspiration",
-  ];
-
-  const summonersFull = [
-    "Flash + Ignite",
-    "Flash + Heal",
-    "Flash + Exhaust",
-    "Ghost + Ignite",
-    "Teleport + Flash"
-  ];
-
-  const itemsFull = [
-    "Bottes + Kraken Slayer + Lame spectre nocturne + Ange gardien",
-    "Bottes + Liandry + Rabadon + Bâton du vide",
-    "Bottes + Cœuracier + Plaque du mort + Force de la nature",
-    "Bottes + Épée vespérale + Muramana + Faux spectrale"
-  ];
-
-  const challenges = [
-    "Tu dois danser devant un ennemi avant de l'engager.",
-    "Tu dois écrire 'mid diff' même si tu n'es pas mid.",
-    "Tu dois hurler 'GO NEXT' vocalement toutes les 2 minutes.",
-    "Tu dois tenter un dive lvl 2 même si c’est une terrible idée."
-  ];
-
-  // -------------------------------
-  // GENERATORS
-  // -------------------------------
-
-  function genChampion() {
-    if (state.championMode === "random") return pick(champions);
-
-    if (state.championMode === "manual") {
-      const val = document.getElementById("manual-champion").value.trim();
-      return val || pick(champions);
-    }
-
-    if (state.championMode === "role") {
-      return pick(champions);
-    }
-
-    return pick(champions);
-  }
-
-  function genRunes() {
-    if (state.runesMode === "full") return pick(runesFull);
-    if (state.runesMode === "trees") return "Arbre principal : Domination / Secondaire : Volonté";
-    return "Runes manuelles (tu gères ça)";
-  }
-
-  function genSummoners() {
-    if (state.summonersMode === "manual") return "Manuels (tu cliques toi-même)";
-    if (state.summonersMode === "flash") return "Flash + " + pick(["Ignite", "Heal", "Ghost", "Exhaust"]);
-    return pick(summonersFull);
-  }
-
-  function genItems() {
-    if (state.itemsMode === "manual") return "Objets manuels (tu choisis)";
-    if (state.itemsMode === "random") return pick(itemsFull);
-    return pick(itemsFull);
-  }
-
-  function genChallenge() {
-    return pick(challenges);
-  }
-  // -------------------------------
-  // BUILD FINAL
-  // -------------------------------
-  function generateFinalBuild() {
-    state.champion = genChampion();
-    state.runes = genRunes();
-    state.summoners = genSummoners();
-    state.items = genItems();
-    state.challenge = genChallenge();
-
-    displayFinalBuild();
-  }
-
-  function displayFinalBuild() {
-    const final = document.getElementById("final-build");
-    final.style.display = "block";
-
-    document.getElementById("final-champion").textContent = state.champion;
-    document.getElementById("final-runes").textContent = state.runes;
-    document.getElementById("final-summoners").textContent = state.summoners;
-    document.getElementById("final-items").textContent = state.items;
-    document.getElementById("final-challenge").textContent = state.challenge;
-
-    // Secret Yuumi
-    if (state.trollLevel === 2 && state.champion.toLowerCase() === "yuumi") {
-      document.getElementById("dynamic-subtitle").textContent =
-        "Clown Fiesta + Yuumi : tu as atteint le niveau ‘bagage à main’. Bonne chance au propriétaire.";
-    }
-  }
-
-  // -------------------------------
-  // REROLLS
-  // -------------------------------
-  document.getElementById("reroll-champion").addEventListener("click", () => {
-    state.champion = genChampion();
-    document.getElementById("final-champion").textContent = state.champion;
-  });
-
-  document.getElementById("reroll-runes").addEventListener("click", () => {
-    state.runes = genRunes();
-    document.getElementById("final-runes").textContent = state.runes;
-  });
-
-  document.getElementById("reroll-summoners").addEventListener("click", () => {
-    state.summoners = genSummoners();
-    document.getElementById("final-summoners").textContent = state.summoners;
-  });
-
-  document.getElementById("reroll-items").addEventListener("click", () => {
-    state.items = genItems();
-    document.getElementById("final-items").textContent = state.items;
-  });
-
-  document.getElementById("reroll-challenge").addEventListener("click", () => {
-    state.challenge = genChallenge();
-    document.getElementById("final-challenge").textContent = state.challenge;
-  });
-
-  // -------------------------------
-  // MAIN BUTTONS
-  // -------------------------------
-  document.getElementById("generate-build").addEventListener("click", () => {
-    generateFinalBuild();
-  });
-
-  document.getElementById("random-everything").addEventListener("click", () => {
-    state.championMode = "random";
-    state.runesMode = "full";
-    state.summonersMode = "full";
-    state.itemsMode = "random";
-    state.lane = pick(["top", "mid", "jungle", "adc", "support"]);
-    state.trollLevel = Math.floor(Math.random() * 3);
-
-    document.getElementById("troll-level").value = state.trollLevel;
-    updateDynamicTitle();
-
-    generateFinalBuild();
-  });
-</script>
+<h1>
+  <span id="troll-icon">🌶️</span>
+  LoL Randomizer – Draft Chaos Engine
+</h1>
+<div id="troll-text">
+  Tu veux pimenter la game. Tu vas surtout pimenter les reports.
 </div>
+
+<!-- TROLL LEVEL -->
+<div class="card">
+  <h2>Niveau de troll</h2>
+  <input type="range" id="troll-range" min="0" max="2" value="1" style="width:100%;">
+</div>
+
+<!-- CHAMPION -->
+<div class="card">
+  <h2>Champion</h2>
+
+  <button class="option-btn selected" data-type="champ" data-mode="random">Aléatoire complet</button>
+  <button class="option-btn" data-type="champ" data-mode="role">Adapté au rôle</button>
+  <button class="option-btn" data-type="champ" data-mode="manual">Manuel</button>
+
+  <input id="champ-manual" placeholder="Entrer un champion" style="display:none;">
+</div>
+
+<!-- RUNES -->
+<div class="card">
+  <h2>Runes</h2>
+
+  <button class="option-btn selected" data-type="runes" data-mode="full">Complètes</button>
+  <button class="option-btn" data-type="runes" data-mode="trees">Arbres</button>
+  <button class="option-btn" data-type="runes" data-mode="manual">Manuel</button>
+</div>
+
+<!-- SUMMONERS -->
+<div class="card">
+  <h2>Sorts d'invocateur</h2>
+
+  <button class="option-btn selected" data-type="summ" data-mode="full">Aléatoire complet</button>
+  <button class="option-btn" data-type="summ" data-mode="flash">Flash + random</button>
+  <button class="option-btn" data-type="summ" data-mode="manual">Manuel</button>
+</div>
+
+<!-- ITEMS -->
+<div class="card">
+  <h2>Objets</h2>
+
+  <button class="option-btn selected" data-type="items" data-mode="adapted">Adaptés au rôle</button>
+  <button class="option-btn" data-type="items" data-mode="random">Totalement random</button>
+  <button class="option-btn" data-type="items" data-mode="manual">Manuel</button>
+</div>
+
+<!-- ACTION BUTTONS -->
+<button id="final-roll" class="action">🎮 Générer le build final</button>
+<button id="team-roll" class="action">🧩 Générer une équipe complète</button>
+<button id="full-random" class="action">🎲 Full Random</button>
+
+<!-- MODAL -->
+<div id="modal-bg">
+  <div id="modal">
+    <h2>Build Final</h2>
+
+    <div id="result"></div>
+
+    <button id="close-modal">Fermer</button>
+  </div>
+</div>
+
+<script>
+// =========================
+// TROLL SLIDER
+// =========================
+const trollIcon = document.getElementById("troll-icon");
+const trollText = document.getElementById("troll-text");
+const trollRange = document.getElementById("troll-range");
+
+const trollPhrases = [
+  "Tu joues propre. C’est mignon. Personne dans ta game ne fera pareil.",
+  "Tu veux pimenter la game. Tu vas surtout pimenter les reports.",
+  "Tu ne vises plus la victoire. Tu vises le chaos pur."
+];
+
+const trollIcons = ["😇", "🌶️", "🤡"];
+
+trollRange.oninput = () => {
+  let v = Number(trollRange.value);
+  trollIcon.textContent = trollIcons[v];
+  trollText.textContent = trollPhrases[v];
+  if (v === 2)
+    trollIcon.style.animation = "wiggle 0.4s", setTimeout(() => trollIcon.style.animation="", 400);
+};
+
+// =========================
+// BUTTON SELECTION
+// =========================
+document.querySelectorAll(".option-btn").forEach(btn => {
+  btn.onclick = () => {
+    const type = btn.dataset.type;
+    document.querySelectorAll(`.option-btn[data-type='${type}']`)
+      .forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+
+    if (type === "champ")
+      document.getElementById("champ-manual").style.display =
+        btn.dataset.mode === "manual" ? "block" : "none";
+  };
+});
+
+// =========================
+// DATA — LoL POOLS
+// =========================
+
+const champsByRole = {
+  top: ["Aatrox","Akali","Camille","Cho'Gath","Darius","Dr. Mundo","Fiora","Garen","Gnar",
+        "Illaoi","Irelia","Jax","Jayce","Kayle","Kled","Malphite","Maokai","Nasus","Ornn",
+        "Poppy","Quinn","Renekton","Riven","Sett","Shen","Singed","Sion","Teemo",
+        "Tryndamere","Urgot","Volibear","Wukong","Yorick","Zaahen"],
+  jungle: ["Amumu","Bel’Veth","Briar","Diana","Ekko","Elise","Evelynn","Fiddlesticks","Gragas",
+           "Graves","Hecarim","Jarvan IV","Kayn","Kha'Zix","Kindred","Lee Sin","Lillia",
+           "Master Yi","Nidalee","Nocturne","Nunu","Olaf","Rammus","Rek'Sai","Rengar",
+           "Sejuani","Shaco","Shyvana","Skarner","Trundle","Udyr","Vi","Viego","Xin Zhao",
+           "Zaahen"],
+  mid: ["Ahri","Akali","Annie","Aurelion Sol","Azir","Cassiopeia","Diana","Ekko","Fizz",
+        "Galio","Irelia","Kassadin","Katarina","LeBlanc","Lissandra","Lux","Malzahar",
+        "Neeko","Orianna","Qiyana","Ryze","Seraphine","Sylas","Taliyah",
+        "Twisted Fate","Veigar","Vex","Viktor","Vladimir","Yasuo","Yone","Zed",
+        "Ziggs","Zoe"],
+  adc: ["Aphelios","Ashe","Caitlyn","Draven","Ezreal","Jhin","Jinx","Kai'Sa","Kalista",
+        "Kindred","Kog'Maw","Lucian","Miss Fortune","Samira","Sivir","Tristana",
+        "Twitch","Varus","Vayne","Xayah","Yunara"],
+  support: ["Alistar","Bard","Blitzcrank","Brand","Braum","Janna","Karma","Leona","Lulu",
+            "Lux","Milio","Morgana","Nami","Nautilus","Pyke","Rakan","Renata","Senna",
+            "Seraphine","Sona","Soraka","Swain","Taric","Thresh","Yuumi","Zyra"]
+};
+
+const runesFull = [
+  "Conquérant","Tempo mortel","Jeu de jambes",
+  "Électrocution","Moisson noire",
+  "Comète","Invocation d'Aery",
+  "Poigne de l'immortel","Après-coup",
+  "First Strike"
+];
+
+const runeTrees = [
+  "Précision + Domination","Précision + Sorcellerie",
+  "Domination + Volonté","Sorcellerie + Inspiration",
+  "Volonté + Précision"
+];
+
+const summonersFull = [
+  "Flash + Ignite","Flash + Heal","Flash + Exhaust","Flash + Barrier",
+  "Flash + Ghost","Flash + Cleanse","Flash + Teleport","Smite + Flash"
+];
+
+const boots = [
+  "Bottes de lucidité","Jambières du berserker",
+  "Coques en acier","Sandales de mercure"
+];
+
+const supportItems = [
+  "Épaulettes d'acier","Bouclier relique",
+  "Lame du spectre","Flamme de sentinelle"
+];
+
+const itemsLegendary = [
+  "Rabadon","Liandry","Étreinte démoniaque","Cœuracier",
+  "Ange Gardien","Kraken","Arc-bouclier","Force de la nature",
+  "Muramana","Lame spectre nocturne","Hydre titanesque"
+];
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function isSupportChamp(ch) {
+  return champsByRole.support.includes(ch);
+}
+
+// AUTO ROLE
+function randomRole() {
+  return pick(["top","jungle","mid","adc","support"]);
+}
+
+// =========================
+// SINGLE PLAYER BUILD
+// =========================
+document.getElementById("final-roll").onclick = () => {
+  const result = generateFullBuild();
+  displaySingle(result);
+};
+
+// =========================
+// FULL RANDOM OVERRIDE
+// =========================
+document.getElementById("full-random").onclick = () => {
+  const role = randomRole();
+  const champ = pick(champsByRole[role]);
+  const runes = pick(runesFull);
+  const sums = pick(summonersFull);
+
+  let build = [];
+  build.push(pick(boots));
+  for(let i=0;i<5;i++) build.push(pick(itemsLegendary));
+  if(isSupportChamp(champ)) build[2] = pick(supportItems);
+
+  displaySingle({champ, runes, sums, items: build});
+};
+
+// =========================
+// TEAM MODE (5 PLAYERS)
+// =========================
+document.getElementById("team-roll").onclick = () => {
+
+  const roles = ["top","jungle","mid","adc","support"];
+
+  let team = roles.map(r => {
+    return generateFullBuild(r);
+  });
+
+  displayTeam(team);
+};
+
+// =========================
+// GENERATION LOGIC
+// =========================
+function generateFullBuild(forceRole=null) {
+  const champMode = document.querySelector(".option-btn.selected[data-type='champ']").dataset.mode;
+
+  let role = forceRole || randomRole();
+
+  let champ;
+  if (champMode === "manual") {
+    champ = document.getElementById("champ-manual").value || pick(champsByRole[role]);
+  } else if (champMode === "role") {
+    champ = pick(champsByRole[role]);
+  } else {
+    champ = pick(Object.values(champsByRole).flat());
+  }
+
+  const runesMode = document.querySelector(".option-btn.selected[data-type='runes']").dataset.mode;
+  let runes = (runesMode === "full") ? pick(runesFull) :
+              (runesMode === "trees") ? pick(runeTrees) : "Runes manuelles";
+
+  const summMode = document.querySelector(".option-btn.selected[data-type='summ']").dataset.mode;
+  let sums = (summMode === "full") ? pick(summonersFull) :
+             (summMode === "flash") ? "Flash + " + pick(["Ignite","Heal","Exhaust","Ghost","Barrier","Cleanse"])
+                                    : "Sorts manuels";
+
+  const itemMode = document.querySelector(".option-btn.selected[data-type='items']").dataset.mode;
+
+  let items = [];
+  items.push(pick(boots));
+  for(let i=0;i<5;i++) items.push(pick(itemsLegendary));
+
+  // Support rule
+  if (isSupportChamp(champ)) items[2] = pick(supportItems);
+
+  return {champ, runes, sums, items, role};
+}
+
+// =========================
+// DISPLAY FUNCTIONS
+// =========================
+function displaySingle(build) {
+  document.getElementById("result").innerHTML =
+    `<b>Champion :</b> ${build.champ}<br>
+     <b>Runes :</b> ${build.runes}<br>
+     <b>Sorts :</b> ${build.sums}<br>
+     <b>Objets :</b> ${build.items.join(", ")}`;
+
+  document.getElementById("modal-bg").style.display = "flex";
+}
+
+function displayTeam(team) {
+  document.getElementById("modal").style.maxWidth = "700px";
+
+  let html = "<h3>Équipe complète :</h3>";
+
+  team.forEach(p => {
+    html += `
+      <div style='margin:12px 0; padding:12px; background:#111827; border-radius:8px;'>
+        <b>${p.role.toUpperCase()}</b><br>
+        Champion : ${p.champ}<br>
+        Runes : ${p.runes}<br>
+        Sorts : ${p.sums}<br>
+        Objets : ${p.items.join(", ")}
+      </div>`;
+  });
+
+  document.getElementById("result").innerHTML = html;
+  document.getElementById("modal-bg").style.display = "flex";
+}
+
+// =========================
+// CLOSE MODAL
+// =========================
+document.getElementById("close-modal").onclick = () =>
+  document.getElementById("modal-bg").style.display = "none";
+
+</script>
+
 </body>
 </html>
