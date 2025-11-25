@@ -1864,8 +1864,7 @@
 
       const trollRange = document.getElementById("troll-level");
       trollRange.addEventListener("input", () => {
-        state.trollLevel = parseInt(trollRange.value, 10) || 1;
-        updateTrollTag();
+        state.trollLevel = parseInt(trollRange.value, 10) || 0;
       });
       state.trollLevel = parseInt(trollRange.value, 10) || 1;
       updateTrollTag();
@@ -1930,3 +1929,4 @@
   </script>
 </body>
 </html>
+
