@@ -2,96 +2,594 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>🎲 RNG Machine – Chargement du chaos...</title>
+  <title>🎲 LoL Random Draft Machine – Clown fiesta contrôlée</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Favicon dynamique (mis à jour via JS) -->
-  <link id="dynamic-favicon" rel="icon" href="favicon_sane.ico" type="image/x-icon" />
+  <meta name="description" content="LoL Random Draft Machine – Générez des drafts League of Legends fun ou totalement troll en solo, équipe complète ou ARAM : champions random, runes chaotiques, sorts discutables, builds douteux et défis débiles. La RNG décide, toi tu assumes." />
 
-  <!-- Meta description dynamique -->
-  <meta id="dynamic-desc" name="description" content="Chargement de la description magique..." />
+  <!-- Tu peux mettre favicon.ico ou favicon_sane.ico selon ce que tu as upload -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
-  <!-- Easter eggs -->
-  <meta name="author" content="RNGesus & le Conseil du Troll" />
   <meta name="theme-color" content="#7c3aed" />
-  <meta name="x-fun-fact" content="Le bouton 'Tout random' a ruiné plus de games que Yasuo OTP." />
+  <meta name="author" content="RNGesus & Co" />
 
-  <script>
-    // === TITRE DYNAMIQUE SELON LE TROLL ===
-    function updateDynamicTitle(level) {
-      let title = "🎲 LoL RNG – ";
-      if (level === 0) title += "Build sérieux (mais pas trop)";
-      if (level === 1) title += "Mode Spicy 🌶️";
-      if (level === 2) title += "Clown Fiesta XXL 🤡";
-      document.title = title;
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #f9fafb;
     }
 
-    // === FAVICON DYNAMIQUE ===
-    function updateDynamicFavicon(level) {
-  const fav = document.getElementById('dynamic-favicon');
-  if (level === 0) fav.href = "favicon_sane.ico";
-  if (level === 1) fav.href = "favicon_spicy.ico";
-  if (level === 2) fav.href = "favicon_clown.ico";
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
+      background:
+        radial-gradient(circle at top, rgba(59, 130, 246, 0.25), transparent 60%),
+        radial-gradient(circle at bottom, rgba(147, 51, 234, 0.2), #020617);
+      box-sizing: border-box;
     }
 
-    // === META DESCRIPTION DYNAMIQUE SELON LE MODE ===
-    function updateDynamicDescription(mode, level) {
-      const desc = document.getElementById('dynamic-desc');
+    .app {
+      width: 100%;
+      max-width: 1080px;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 24px;
+      padding: 18px 20px 22px;
+      box-shadow:
+        0 18px 45px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(148, 163, 184, 0.25);
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
 
-      const trollText = [
-        "Une expérience plutôt raisonnable (mais méfie-toi quand même).",
-        "Un joyeux chaos avec une pointe de skill (ou pas).",
-        "Un enfer sur Rift où plus rien n'a de sens."
-      ][level];
+    .glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.5;
+      background:
+        radial-gradient(circle at 10% 0, rgba(59, 130, 246, 0.25), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.22), transparent 60%);
+      z-index: -1;
+    }
 
-      if (mode === "solo") {
-        desc.content = `Mode Solo – Génère champions, runes, sorts et objets. ${trollText}`;
-      }
-      if (mode === "team") {
-        desc.content = `Mode Équipe complète – 5 rôles, 5 victimes du RNG. ${trollText}`;
-      }
-      if (mode === "aram") {
-        desc.content = `Mode ARAM – Un seul couloir, beaucoup trop de décisions discutables. ${trollText}`;
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.7rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.8rem;
+    }
+
+    .mode-label {
+      margin-right: 4px;
+      color: #9ca3af;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
+      white-space: nowrap;
+    }
+
+    .mode-btn span.icon {
+      font-size: 0.9rem;
+    }
+
+    .mode-btn.active {
+      background: radial-gradient(circle at top left, #1d4ed8, #7c3aed);
+      color: #e5e7eb;
+      transform: translateY(-0.5px);
+    }
+
+    .mode-btn:not(.active):hover {
+      background: rgba(30, 64, 175, 0.25);
+      color: #e5e7eb;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .troll-block {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .troll-block label {
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    .troll-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="range"] {
+      accent-color: #f97316;
+    }
+
+    .troll-tag {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .troll-tag.level-0 {
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+
+    .troll-tag.level-1 {
+      border-color: #eab308;
+      color: #facc15;
+    }
+
+    .troll-tag.level-2 {
+      border-color: #f97316;
+      color: #fed7aa;
+    }
+
+    .challenge-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .challenge-toggle input {
+      accent-color: #22c55e;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
-    // === HOOK SUR L'APPLI ===
-    document.addEventListener("DOMContentLoaded", () => {
-      // on attend 200ms pour s’assurer que tout existe
-      setTimeout(() => {
-        // récupération initiale
-        const trollSlider = document.getElementById("troll-level");
-        const currentMode = document.querySelector(".mode-btn.active").dataset.mode;
+    .card {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+      border-radius: 18px;
+      padding: 12px 12px 13px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
 
-        // mise à jour initiale
-        updateDynamicTitle(parseInt(trollSlider.value));
-        updateDynamicFavicon(parseInt(trollSlider.value));
-        updateDynamicDescription(currentMode, parseInt(trollSlider.value));
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
 
-        // quand on change le niveau de troll
-        trollSlider.addEventListener("input", () => {
-          const lvl = parseInt(trollSlider.value);
-          updateDynamicTitle(lvl);
-          updateDynamicFavicon(lvl);
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
 
-          const mode = document.querySelector(".mode-btn.active").dataset.mode;
-          updateDynamicDescription(mode, lvl);
-        });
+    .card-title span.icon {
+      font-size: 1rem;
+    }
 
-        // quand on change de mode
-        document.querySelectorAll(".mode-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const mode = btn.dataset.mode;
-            const lvl = parseInt(document.getElementById("troll-level").value);
-            updateDynamicDescription(mode, lvl);
-          });
-        });
-      }, 200);
-    });
-  </script>
+    .card-subtitle {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
 
+    .pill {
+      font-size: 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 2px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .pill.muted {
+      border-style: dashed;
+      opacity: 0.8;
+    }
+
+    .lane-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .lane-btn {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, border 0.1s ease, background 0.1s ease;
+    }
+
+    .lane-btn.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-color: #93c5fd;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+      transform: translateY(-0.5px);
+    }
+
+    .lane-btn:hover:not(.active) {
+      border-color: #60a5fa;
+      transform: translateY(-0.5px);
+    }
+
+    .small-btn {
+      border-radius: 999px;
+      padding: 3px 8px;
+      border: none;
+      background: rgba(30, 64, 175, 0.9);
+      color: #e5e7eb;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .small-btn.secondary {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+
+    .small-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+
+    .radio-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .radio-row input[type="radio"],
+    .radio-row input[type="checkbox"] {
+      accent-color: #2563eb;
+    }
+
+    .output {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .output span.tag {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 2px 8px;
+      font-size: 0.78rem;
+    }
+
+    .output .placeholder {
+      color: #6b7280;
+      font-size: 0.78rem;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .row .hint {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    textarea.pool-input {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      padding: 6px 8px;
+      resize: vertical;
+      box-sizing: border-box;
+      margin-top: 4px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+      max-height: 72px;
+      overflow-y: auto;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid rgba(52, 211, 153, 0.7);
+      font-size: 0.75rem;
+      color: #a7f3d0;
+    }
+
+    .btn-main {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .btn-main.primary {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #e5e7eb;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.5);
+    }
+
+    .btn-main.secondary {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+
+    .btn-main:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .solo-actions {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .solo-actions-left,
+    .solo-actions-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .challenge-box {
+      background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.98));
+      border-radius: 14px;
+      padding: 8px 8px;
+      border: 1px solid rgba(45, 212, 191, 0.5);
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    .challenge-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a5f3fc;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .challenge-text {
+      color: #e0f2fe;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .shake {
+      animation: shake 0.22s ease-in-out;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-1px); }
+      100% { transform: translateX(0); }
+    }
+
+    .spin {
+      animation: spin 0.3s ease-out;
+    }
+
+    @keyframes spin {
+      from { transform: rotateY(90deg); opacity: 0; }
+      to { transform: rotateY(0); opacity: 1; }
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 16px;
+      padding: 10px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.78rem;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .history-entry {
+      border-bottom: 1px dashed rgba(55, 65, 81, 0.8);
+      padding: 4px 0;
+    }
+
+    .history-entry:last-child {
+      border-bottom: none;
+    }
+
+    .history-title {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .history-meta {
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .history-body {
+      margin-top: 2px;
+      white-space: pre-line;
+    }
+
+    .hint-small {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .team-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .team-table th,
+    .team-table td {
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 4px 4px;
+      text-align: left;
+    }
+
+    .team-table th {
+      font-weight: 600;
+      color: #9ca3af;
+      position: sticky;
+      top: 0;
+      background: rgba(15, 23, 42, 0.98);
+      z-index: 1;
+    }
+
+    .badge-role {
+      border-radius: 999px;
+      padding: 1px 6px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(96, 165, 250, 0.8);
+      color: #bfdbfe;
+    }
+
+    .view-note {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+  </style>
 </head>
-
 <body>
   <div class="app">
     <div class="glow"></div>
@@ -132,6 +630,7 @@
       <div>
         <!-- SOLO VIEW -->
         <div class="view active" id="view-solo">
+          <!-- Lane -->
           <div class="card" id="card-solo-lane">
             <div class="card-header">
               <div class="card-title">
@@ -166,6 +665,7 @@
             </div>
           </div>
 
+          <!-- Champion -->
           <div class="card" id="card-solo-champion">
             <div class="card-header">
               <div class="card-title">
@@ -237,6 +737,7 @@
             </div>
           </div>
 
+          <!-- Runes -->
           <div class="card" id="card-solo-runes">
             <div class="card-header">
               <div class="card-title">
@@ -273,6 +774,7 @@
             </div>
           </div>
 
+          <!-- Summoners -->
           <div class="card" id="card-solo-sums">
             <div class="card-header">
               <div class="card-title">
@@ -315,6 +817,7 @@
             </div>
           </div>
 
+          <!-- Items -->
           <div class="card" id="card-solo-items">
             <div class="card-header">
               <div class="card-title">
@@ -351,6 +854,7 @@
             </div>
           </div>
 
+          <!-- Actions globales solo -->
           <div class="card">
             <div class="card-header">
               <div class="card-title">
@@ -420,7 +924,7 @@
               </table>
             </div>
             <div class="hint-small">
-              Le tirage d’équipe est influencé par le niveau de troll global. Tu peux ensuite repasser en mode solo pour reroll un joueur en particulier si vous voulez.
+              Le tirage d’équipe est influencé par le niveau de troll global.
             </div>
           </div>
         </div>
@@ -640,9 +1144,9 @@
             </div>
           </div>
           <div style="font-size:0.8rem; color:#e5e7eb;">
-            - Tu peux monter ou descendre le niveau de troll à tout moment, même entre deux tirages.<br/>
-            - Le mode solo est le plus complet. Les modes Équipe et ARAM sont là pour accélérer la fête.<br/>
-            - Si quelque chose te plaît, copie le build pour le garder avant un nouveau tirage.
+            - Tu peux monter ou descendre le niveau de troll à tout moment.<br/>
+            - Le mode solo est le plus complet. Les modes Équipe et ARAM vont plus vite.<br/>
+            - Si un tirage te plaît, copie le build avant d’en relancer un autre.
           </div>
         </div>
       </div>
@@ -671,8 +1175,7 @@
       "Twitch", "Udyr", "Urgot", "Varus", "Vayne", "Veigar", "Vel'Koz", "Vi",
       "Viego", "Viktor", "Vladimir", "Volibear", "Warwick", "Wukong", "Xayah",
       "Xerath", "Xin Zhao", "Yasuo", "Yone", "Yorick", "Yuumi", "Zac", "Zed",
-      "Ziggs", "Zilean", "Zoe", "Zyra",
-      "Yunara", "Zaahen"
+      "Ziggs", "Zilean", "Zoe", "Zyra", "Yunara", "Zaahen"
     ];
 
     const lanePools = {
@@ -1301,7 +1804,8 @@
 
       const trollRange = document.getElementById("troll-level");
       trollRange.addEventListener("input", () => {
-        state.trollLevel = parseInt(trollRange.value, 10) || 1;
+        const v = parseInt(trollRange.value, 10);
+        state.trollLevel = isNaN(v) ? 1 : v; // <-- CORRECTION : plus de "|| 1"
         updateTrollTag();
       });
       updateTrollTag();
@@ -1382,6 +1886,3 @@
   </script>
 </body>
 </html>
-
-
-
