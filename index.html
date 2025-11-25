@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Favicon dynamique (mis à jour via JS) -->
-  <link id="dynamic-favicon" rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link id="dynamic-favicon" rel="icon" href="favicon_sane.ico" type="image/x-icon" />
 
   <!-- Meta description dynamique -->
   <meta id="dynamic-desc" name="description" content="Chargement de la description magique..." />
@@ -28,10 +28,10 @@
 
     // === FAVICON DYNAMIQUE ===
     function updateDynamicFavicon(level) {
-      const fav = document.getElementById('dynamic-favicon');
-      if (level === 0) fav.href = "favicon_sane.ico";   // un dé 🎲
-      if (level === 1) fav.href = "favicon_spicy.ico";  // un piment 🌶
-      if (level === 2) fav.href = "favicon_clown.ico";  // un clown 🤡
+  const fav = document.getElementById('dynamic-favicon');
+  if (level === 0) fav.href = "favicon_sane.ico";
+  if (level === 1) fav.href = "favicon_spicy.ico";
+  if (level === 2) fav.href = "favicon_clown.ico";
     }
 
     // === META DESCRIPTION DYNAMIQUE SELON LE MODE ===
@@ -1382,5 +1382,6 @@
   </script>
 </body>
 </html>
+
 
 
