@@ -1360,8 +1360,13 @@
       }
     }
 
-    function updateTrollTag() {
-  const lvl = state.trollLevel;
+  function updateTrollTag() {
+  const range = document.getElementById("troll-level");
+  const lvl = parseInt(range.value, 10) || 0; // 0, 1 ou 2
+
+  // On garde aussi l'info dans le state au cas où
+  state.trollLevel = lvl;
+
   const tag = document.getElementById("troll-tag");
   const desc = document.getElementById("troll-desc");
 
@@ -1381,6 +1386,7 @@
     desc.textContent = "Ton but n’est plus de gagner, juste de créer un ticket pour /r/leagueoflegends.";
   }
 }
+
 
     function getCheckedValue(name) {
       const els = document.querySelectorAll(`input[name="${name}"]`);
@@ -1863,18 +1869,16 @@
       document.getElementById("aram-my-pool-input").value = state.myPoolAram.join(", ");
       renderMyPoolChips("aram-my-pool-chips", state.myPoolAram.length ? state.myPoolAram : state.myPoolSolo);
 
-       const trollRange = document.getElementById("troll-level");
+      const trollRange = document.getElementById("troll-level");
 
-  // Valeur initiale : ce qu'il y a dans l'input (1 = Spicy)
-  const initial = parseInt(trollRange.value, 10);
-  state.trollLevel = isNaN(initial) ? 1 : initial;
+  // Quand tu bouges le curseur, on met à jour l'affichage
+  trollRange.addEventListener("input", () => {
+    updateTrollTag();
+  });
+
+  // Initialisation (Spicy par défaut car value="1" dans le HTML)
   updateTrollTag();
 
-  // Quand tu bouges le curseur
-  trollRange.addEventListener("input", () => {
-    const v = parseInt(trollRange.value, 10);
-    state.trollLevel = isNaN(v) ? 0 : v; // 0, 1 ou 2
-    updateTrollTag();
 
       document.getElementById("mode-solo").addEventListener("click", () => switchMode("solo"));
       document.getElementById("mode-team").addEventListener("click", () => switchMode("team"));
@@ -1936,5 +1940,6 @@
   </script>
 </body>
 </html>
+
 
 
